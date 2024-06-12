@@ -42,7 +42,7 @@ public class UserService {
             throw new IllegalArgumentException(ExceptionMessage.DUPLICATE_EMAIL.getExceptionMessage());
         }
 
-        Status status = Status.UNAUTHORIZED;
+        Status status = Status.ACTIVATE;
         LocalDateTime statusModTime = LocalDateTime.now();
 
         User user = new User(username, password, name, email, userInfo, status, statusModTime);
