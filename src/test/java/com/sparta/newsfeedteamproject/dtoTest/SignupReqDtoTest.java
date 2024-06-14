@@ -83,9 +83,9 @@ public class SignupReqDtoTest {
             // given
             String username = "";
 
-            Field usernameField = SignupReqDto.class.getDeclaredField("username");
-            usernameField.setAccessible(true);
-            usernameField.set(signupReqDto, username);
+            Field field = SignupReqDto.class.getDeclaredField("username");
+            field.setAccessible(true);
+            field.set(signupReqDto, username);
 
             // when
             List<ConstraintViolation<SignupReqDto>> validationList = validator.validate(signupReqDto).stream().collect(Collectors.toList());
@@ -101,9 +101,9 @@ public class SignupReqDtoTest {
             // given
             String username = "Test1!";
 
-            Field usernameField = SignupReqDto.class.getDeclaredField("username");
-            usernameField.setAccessible(true);
-            usernameField.set(signupReqDto, username);
+            Field field = SignupReqDto.class.getDeclaredField("username");
+            field.setAccessible(true);
+            field.set(signupReqDto, username);
 
             // when
             List<ConstraintViolation<SignupReqDto>> validationList = validator.validate(signupReqDto).stream().collect(Collectors.toList());
@@ -119,9 +119,9 @@ public class SignupReqDtoTest {
             // given
             String username = "testusername!";
 
-            Field usernameField = SignupReqDto.class.getDeclaredField("username");
-            usernameField.setAccessible(true);
-            usernameField.set(signupReqDto, username);
+            Field field = SignupReqDto.class.getDeclaredField("username");
+            field.setAccessible(true);
+            field.set(signupReqDto, username);
 
             // when
             List<ConstraintViolation<SignupReqDto>> validationList = validator.validate(signupReqDto).stream().collect(Collectors.toList());
@@ -144,9 +144,9 @@ public class SignupReqDtoTest {
             // given
             String password = "";
 
-            Field usernameField = SignupReqDto.class.getDeclaredField("password");
-            usernameField.setAccessible(true);
-            usernameField.set(signupReqDto, password);
+            Field field = SignupReqDto.class.getDeclaredField("password");
+            field.setAccessible(true);
+            field.set(signupReqDto, password);
 
             // when
             List<ConstraintViolation<SignupReqDto>> validationList = validator.validate(signupReqDto).stream().collect(Collectors.toList());
@@ -162,9 +162,9 @@ public class SignupReqDtoTest {
             // given
             String password = "Pw1!";
 
-            Field usernameField = SignupReqDto.class.getDeclaredField("password");
-            usernameField.setAccessible(true);
-            usernameField.set(signupReqDto, password);
+            Field field = SignupReqDto.class.getDeclaredField("password");
+            field.setAccessible(true);
+            field.set(signupReqDto, password);
 
             // when
             List<ConstraintViolation<SignupReqDto>> validationList = validator.validate(signupReqDto).stream().collect(Collectors.toList());
@@ -180,9 +180,9 @@ public class SignupReqDtoTest {
             // given
             String password = "passwordtest!";
 
-            Field usernameField = SignupReqDto.class.getDeclaredField("password");
-            usernameField.setAccessible(true);
-            usernameField.set(signupReqDto, password);
+            Field field = SignupReqDto.class.getDeclaredField("password");
+            field.setAccessible(true);
+            field.set(signupReqDto, password);
 
             // when
             List<ConstraintViolation<SignupReqDto>> validationList = validator.validate(signupReqDto).stream().collect(Collectors.toList());
@@ -200,9 +200,9 @@ public class SignupReqDtoTest {
         // given
         String name = "";
 
-        Field usernameField = SignupReqDto.class.getDeclaredField("name");
-        usernameField.setAccessible(true);
-        usernameField.set(signupReqDto, name);
+        Field field = SignupReqDto.class.getDeclaredField("name");
+        field.setAccessible(true);
+        field.set(signupReqDto, name);
 
         // when
         List<ConstraintViolation<SignupReqDto>> validationList = validator.validate(signupReqDto).stream().collect(Collectors.toList());
@@ -215,7 +215,7 @@ public class SignupReqDtoTest {
 
     // email 필드 테스트
     @Nested
-    @DisplayName("Password 필드 유효 테스트")
+    @DisplayName("Email 필드 유효 테스트")
     class EmailValidTest {
 
         @Test
@@ -224,9 +224,9 @@ public class SignupReqDtoTest {
             // given
             String email = "";
 
-            Field usernameField = SignupReqDto.class.getDeclaredField("email");
-            usernameField.setAccessible(true);
-            usernameField.set(signupReqDto, email);
+            Field field = SignupReqDto.class.getDeclaredField("email");
+            field.setAccessible(true);
+            field.set(signupReqDto, email);
 
             // when
             List<ConstraintViolation<SignupReqDto>> validationList = validator.validate(signupReqDto).stream().collect(Collectors.toList());
@@ -242,9 +242,9 @@ public class SignupReqDtoTest {
             // given
             String email = "email";
 
-            Field usernameField = SignupReqDto.class.getDeclaredField("email");
-            usernameField.setAccessible(true);
-            usernameField.set(signupReqDto, email);
+            Field field = SignupReqDto.class.getDeclaredField("email");
+            field.setAccessible(true);
+            field.set(signupReqDto, email);
 
             // when
             List<ConstraintViolation<SignupReqDto>> validationList = validator.validate(signupReqDto).stream().collect(Collectors.toList());
