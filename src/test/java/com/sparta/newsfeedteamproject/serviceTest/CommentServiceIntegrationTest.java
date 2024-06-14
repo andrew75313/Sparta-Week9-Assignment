@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -55,5 +56,35 @@ public class CommentServiceIntegrationTest {
         assertEquals(contents, messageResDto.getData(), "comment 내용이 올바르게 생성되지 않았습니다.");
 
         createdComment = new Comment(commentReqDto, feed, user, 0L);
+    }
+
+    @Nested
+    @DisplayName("댓글 찾기 기능")
+    class FindFeedTest {
+        @Test
+        @Order(2)
+        @DisplayName("댓글 찾기 기능 - 성공")
+        void testFindComment() {
+            // given
+            Long commentId = createdComment.getId();
+
+            // when
+            Comment comment = commentService.findComment(commentId);
+
+            // then
+            assertEquals(commentId, comment.getId(), "댓글을 올바르게 찾을 수 없습니다.");
+        }
+
+        @Test
+        @Order(3)
+        @DisplayName("댓글 찾기 기능 - 실패")
+        void testFindCommentFail() {
+            // given
+            Long commentId = 10000000L;
+
+            // when - then
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> commentService.findComment(commentId));
+            assertEquals("해당 요소가 존재하지 않습니다.", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
+        }
     }
 }
