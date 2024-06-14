@@ -249,13 +249,9 @@ public class CommentServiceIntegrationTest {
             Long feedId = createdComment.getFeed().getId();
             user = userRepository.findById(1L).orElse(null);
 
-            // when
-            commentService.deleteComment(feedId, commentId, user);
-
-            // then
+            // when - then
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> commentService.deleteComment(feedId, commentId, user));
             assertEquals("해당 작업은 작성자만 수정/삭제 할 수 있습니다!", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
         }
-
     }
 }
