@@ -212,17 +212,35 @@ public class FeedServiceIntegrationTest {
         assertEquals(this.feedContents, foundFeedResDto.getContents(), "조회할 feed가 올바르게 조회되지 않았습니다.");
     }
 
-    @Test
-    @Order(10)
+    @Nested
     @DisplayName("게시글 삭제")
-    void deleteFeed() {
-        // given
-        user = userRepository.findById(1L).orElse(null);
+    class DeleteFeedTest {
+        @Test
+        @Order(10)
+        @DisplayName("게시글 삭제 - 성공")
+        void deleteFeed() {
+            // given
+            Long feedId = createdFeed.getId();
+            user = userRepository.findById(1L).orElse(null);
 
-        // when
-        MessageResDto<FeedResDto> messageResDto = feedService.deleteFeed(feedId, user);
+            // when
+            MessageResDto<FeedResDto> messageResDto = feedService.deleteFeed(feedId, user);
 
-        // then
-        assertEquals("게시물 삭제가 완료되었습니다!", messageResDto.getMessage(), "feed가 올바르게 삭제되지 않았습니다.");
+            // then
+            assertEquals("게시물 삭제가 완료되었습니다!", messageResDto.getMessage(), "feed가 올바르게 삭제되지 않았습니다.");
+        }
+
+        @Test
+        @Order(11)
+        @DisplayName("게시글 삭제 - 실패")
+        void deleteFeedFail() {
+            // given
+            Long feedId = createdFeed.getId();
+            user = userRepository.findById(2L).orElse(null);
+
+            // when - then
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> feedService.deleteFeed(feedId, user));
+            assertEquals("해당 작업은 작성자만 수정/삭제 할 수 있습니다!", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
+        }
     }
 }
