@@ -151,4 +151,21 @@ public class CommentServiceIntegrationTest {
 
         this.commentContents = contents;
     }
+
+    @Test
+    @Order(7)
+    @DisplayName("단건 댓글 조회")
+    void testGetComment() {
+        // given
+        Long commentId = this.createdComment.getId();
+        Long feedId = this.createdComment.getFeed().getId();
+
+        // when
+        MessageResDto<CommentResDto> messageResDto = commentService.getComment(feedId, commentId);
+
+        // then
+        CommentResDto foundCommentResDto = messageResDto.getData();
+
+        assertEquals(this.commentContents, foundCommentResDto.getContents(), "조회할 feed가 올바르게 조회되지 않았습니다.");
+    }
 }
