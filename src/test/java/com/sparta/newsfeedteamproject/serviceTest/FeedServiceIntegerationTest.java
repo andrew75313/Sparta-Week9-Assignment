@@ -15,8 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -34,6 +33,7 @@ public class FeedServiceIntegerationTest {
     Feed createdFeed = null;
     String feedContents = "";
     Long feedId;
+
 
     @Test
     @Order(1)
@@ -56,6 +56,36 @@ public class FeedServiceIntegerationTest {
         assertEquals(contents, messageResDto.getData(), "feed 내용이 올바르게 생성되지 않았습니다.");
 
         createdFeed = new Feed(feedReqDto, user);
+    }
+
+    @Nested
+    @DisplayName("게시글 찾기 기능")
+    class FindFeedTest {
+        @Test
+        @Order(6)
+        @DisplayName("게시글 찾기 기능 - 성공")
+        void testFindFeed() {
+            // given
+            Long feedId = createdFeed.getId();
+
+            // when
+            Feed feed = feedService.findFeed(feedId);
+
+            // then
+            assertEquals(feedId, feed.getId(), "게시글을 올바르게 찾을 수 없습니다.");
+        }
+
+        @Test
+        @Order(7)
+        @DisplayName("게시글 찾기 기능 - 실패")
+        void testFindFeedFail() {
+            // given
+            Long feedId = 10000000L;
+
+            // when - then
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> feedService.findFeed(feedId));
+            assertEquals("해당 요소가 존재하지 않습니다.", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
+        }
     }
 
     @Test
