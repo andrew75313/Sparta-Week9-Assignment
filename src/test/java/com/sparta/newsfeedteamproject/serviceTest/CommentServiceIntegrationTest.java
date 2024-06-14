@@ -1,14 +1,14 @@
 package com.sparta.newsfeedteamproject.serviceTest;
 
 import com.sparta.newsfeedteamproject.dto.MessageResDto;
+import com.sparta.newsfeedteamproject.dto.comment.CommentDelResDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentReqDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentResDto;
 import com.sparta.newsfeedteamproject.dto.feed.FeedReqDto;
 import com.sparta.newsfeedteamproject.dto.feed.FeedResDto;
-import com.sparta.newsfeedteamproject.entity.Comment;
-import com.sparta.newsfeedteamproject.entity.Feed;
-import com.sparta.newsfeedteamproject.entity.User;
+import com.sparta.newsfeedteamproject.entity.*;
 import com.sparta.newsfeedteamproject.repository.CommentRepository;
+import com.sparta.newsfeedteamproject.repository.LikeRepository;
 import com.sparta.newsfeedteamproject.repository.UserRepository;
 import com.sparta.newsfeedteamproject.service.CommentService;
 import org.junit.jupiter.api.*;
@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,6 +33,8 @@ public class CommentServiceIntegrationTest {
     UserRepository userRepository;
     @Autowired
     CommentRepository commentRepository;
+    @Autowired
+    LikeRepository likeRepository;
 
     User user;
     Comment createdComment = null;
@@ -170,5 +173,25 @@ public class CommentServiceIntegrationTest {
         CommentResDto foundCommentResDto = messageResDto.getData();
 
         assertEquals(this.commentContents, foundCommentResDto.getContents(), "조회할 feed가 올바르게 조회되지 않았습니다.");
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("댓글의 좋아요 전체 삭제")
+    void testDeleteLikes() {
+        // given
+        Long commentId = createdComment.getId();
+        Long feedId = createdComment.getFeed().getId();
+        user = userRepository.findById(1L).orElse(null);
+        Like like = new Like(user, commentId, Contents.COMMENT);
+
+        likeRepository.save(like);
+
+        // when
+        commentService.deleteComment(feedId, commentId, user);
+
+        // then
+        List<Like> foundLikeList = likeRepository.findAllByContentsIdAndContents(commentId, Contents.COMMENT).orElse(null);
+        assertEquals(0, foundLikeList.size(), "좋아요가 올바르게 삭제되지 않았습니다.");
     }
 }
