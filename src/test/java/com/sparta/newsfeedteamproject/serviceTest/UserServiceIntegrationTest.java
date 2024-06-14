@@ -1,5 +1,6 @@
 package com.sparta.newsfeedteamproject.serviceTest;
 
+import com.sparta.newsfeedteamproject.dto.user.ProfileResDto;
 import com.sparta.newsfeedteamproject.dto.user.SignupReqDto;
 import com.sparta.newsfeedteamproject.dto.user.UserAuthReqDto;
 import com.sparta.newsfeedteamproject.entity.Status;
@@ -11,6 +12,7 @@ import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -263,7 +265,7 @@ public class UserServiceIntegrationTest {
 
             // then
             User foundUser = userRepository.findById(userId).orElse(null);
-            assertEquals("", foundUser.getRefreshToken(),"로그아웃이 올바르게 진행되지 않았습니다.");
+            assertEquals("", foundUser.getRefreshToken(), "로그아웃이 올바르게 진행되지 않았습니다.");
         }
 
         @Test
@@ -275,7 +277,7 @@ public class UserServiceIntegrationTest {
             user.setId(1L);
             user.setRefreshToken("refreshtoken");
 
-            User differentUser =  new User();
+            User differentUser = new User();
             differentUser.setId(1000L);
 
             userRepository.save(user);
@@ -287,6 +289,57 @@ public class UserServiceIntegrationTest {
             // when - then
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.logout(userId, userDetails));
             assertEquals("프로필 사용자와 일치하지 않아 요청을 처리할 수 없습니다.", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
+        }
+    }
+
+    @Nested
+    @DisplayName("프로필 조회")
+    class TestGetProfile {
+
+        @Test
+        @Transactional
+        @DisplayName("프로필 조회 - 성공")
+        void testGetProfile() {
+            // given
+            User user = new User();
+            user.setId(1L);
+            user.setUsername(username);
+            user.setName(name);
+            user.setEmail(email);
+            user.setUserInfo(userInfo);
+            user.setStatus(Status.ACTIVATE);
+
+            userRepository.save(user);
+
+            Long userId = user.getId();
+
+            // when
+            ProfileResDto profileResDto = userService.getProfile(userId);
+
+            // then
+            assertNotNull(profileResDto, "프로필이 올바르게 조회되지 않았습니다.");
+            assertEquals(username, profileResDto.getUsername(), "Username이 올바르게 조회되지 않았습니다.");
+            assertEquals(name, profileResDto.getName(), "Name이 올바르게 조회되지 않았습니다.");
+            assertEquals(email, profileResDto.getEmail(), "Email이 올바르게 조회되지 않았습니다.");
+            assertEquals(userInfo, profileResDto.getUserInfo(), "UserInfo가 올바르게 조회되지 않았습니다.");
+        }
+
+        @Test
+        @Transactional
+        @DisplayName("프로필 조회 - 사용자 Status 비활성화 상태 실패")
+        void testGetProfileUnmatchedStatusFail() {
+            // given
+            User user = new User();
+            user.setId(1L);
+            user.setStatus(Status.DEACTIVATE);
+
+            userRepository.save(user);
+
+            Long userId = user.getId();
+
+            // when - then
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.getProfile(userId));
+            assertEquals("탈퇴한 회원입니다.", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
         }
     }
 }
