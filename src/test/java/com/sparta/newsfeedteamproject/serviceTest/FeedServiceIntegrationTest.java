@@ -6,7 +6,6 @@ import com.sparta.newsfeedteamproject.dto.feed.FeedResDto;
 import com.sparta.newsfeedteamproject.entity.Feed;
 import com.sparta.newsfeedteamproject.entity.User;
 import com.sparta.newsfeedteamproject.repository.FeedRepository;
-import com.sparta.newsfeedteamproject.repository.LikeRepository;
 import com.sparta.newsfeedteamproject.repository.UserRepository;
 import com.sparta.newsfeedteamproject.service.FeedService;
 import org.junit.jupiter.api.*;
@@ -21,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class FeedServiceIntegerationTest {
+public class FeedServiceIntegrationTest {
 
     @Autowired
     FeedService feedService;
