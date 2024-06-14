@@ -133,29 +133,55 @@ public class CommentServiceIntegrationTest {
         }
     }
 
-    @Test
-    @Order(6)
+    @Nested
     @DisplayName("댓글 수정")
-    @Transactional
-    void testUpdateComment() throws NoSuchFieldException, IllegalAccessException {
-        // given
-        Long commentId = this.createdComment.getId();
-        String contents = "UPDATE Test Comment";
+    class UpdateCommentTest {
+        @Test
+        @Order(6)
+        @DisplayName("댓글 수정 - 성공")
+        @Transactional
+        void testUpdateComment() throws NoSuchFieldException, IllegalAccessException {
+            // given
+            Long commentId = createdComment.getId();
+            String contents = "UPDATE Test Comment";
 
-        CommentReqDto commentReqDto = new CommentReqDto();
-        Field field = CommentReqDto.class.getDeclaredField("contents");
-        field.setAccessible(true);
-        field.set(commentReqDto, contents);
+            CommentReqDto commentReqDto = new CommentReqDto();
+            Field field = CommentReqDto.class.getDeclaredField("contents");
+            field.setAccessible(true);
+            field.set(commentReqDto, contents);
 
-        user = userRepository.findById(1L).orElse(null);
+            user = userRepository.findById(1L).orElse(null);
 
-        // when
-        MessageResDto<CommentResDto> messageResDto = commentService.updateComment(1L, commentId, commentReqDto, user);
+            // when
+            MessageResDto<CommentResDto> messageResDto = commentService.updateComment(1L, commentId, commentReqDto, user);
 
-        // then
-        assertEquals(contents, messageResDto.getData(), "댓글 내용이 올바르게 수정되지 않았습니다.");
+            // then
+            assertEquals(contents, messageResDto.getData(), "댓글 내용이 올바르게 수정되지 않았습니다.");
 
-        this.commentContents = contents;
+            commentContents = contents;
+        }
+
+        @Test
+        @Order(6)
+        @DisplayName("댓글 수정 - 실패")
+        @Transactional
+        void testUpdateCommentFail() throws NoSuchFieldException, IllegalAccessException {
+            // given
+            Long commentId = createdComment.getId();
+            String contents = "UPDATE Test Comment";
+
+            CommentReqDto commentReqDto = new CommentReqDto();
+            Field field = CommentReqDto.class.getDeclaredField("contents");
+            field.setAccessible(true);
+            field.set(commentReqDto, contents);
+
+            user = userRepository.findById(2L).orElse(null);
+
+            // when - then
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> commentService.updateComment(1L, commentId, commentReqDto, user));
+            assertEquals("해당 작업은 작성자만 수정/삭제 할 수 있습니다!", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
+
+        }
     }
 
     @Test
