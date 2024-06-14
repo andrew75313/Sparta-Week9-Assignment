@@ -238,4 +238,55 @@ public class UserServiceIntegrationTest {
             assertEquals("탈퇴한 회원입니다.", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
         }
     }
+
+    @Nested
+    @DisplayName("로그아웃")
+    class LogoutTest {
+
+        @Test
+        @Transactional
+        @DisplayName("로그아웃 - 성공")
+        void testLogout() {
+            // given
+            User user = new User();
+            user.setId(1L);
+            user.setRefreshToken("refreshtoken");
+
+            userRepository.save(user);
+
+            Long userId = user.getId();
+
+            UserDetailsImpl userDetails = new UserDetailsImpl(user);
+
+            // when
+            userService.logout(userId, userDetails);
+
+            // then
+            User foundUser = userRepository.findById(userId).orElse(null);
+            assertEquals("", foundUser.getRefreshToken(),"로그아웃이 올바르게 진행되지 않았습니다.");
+        }
+
+        @Test
+        @Transactional
+        @DisplayName("로그아웃 - 사용자 ID 불일치 실패")
+        void testLogoutUnmatchedUseridFail() {
+            // given
+            User user = new User();
+            user.setId(1L);
+            user.setRefreshToken("refreshtoken");
+
+            User differentUser =  new User();
+            differentUser.setId(1000L);
+
+            userRepository.save(user);
+
+            Long userId = user.getId();
+
+            UserDetailsImpl userDetails = new UserDetailsImpl(differentUser);
+
+            // when - then
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.logout(userId, userDetails));
+            assertEquals("프로필 사용자와 일치하지 않아 요청을 처리할 수 없습니다.", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
+        }
+    }
 }
