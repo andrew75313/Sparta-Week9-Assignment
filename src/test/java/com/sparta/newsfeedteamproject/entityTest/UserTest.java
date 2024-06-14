@@ -37,6 +37,8 @@ class UserTest {
         statusModTime = LocalDateTime.now();
 
         user = new User(username, password, name, email, userInfo, status, statusModTime);
+        user.setId(id);
+        user.setRefreshToken(refreshToken);
     }
 
     // Setter 테스트
