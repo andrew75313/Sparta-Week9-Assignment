@@ -29,8 +29,6 @@ public class FeedServiceIntegerationTest {
     UserRepository userRepository;
     @Autowired
     FeedRepository feedRepository;
-    @Autowired
-    LikeRepository likeRepository;
 
     User user;
     Feed createdFeed = null;
@@ -65,7 +63,7 @@ public class FeedServiceIntegerationTest {
     @DisplayName("게시글 찾기 기능")
     class FindFeedTest {
         @Test
-        @Order(6)
+        @Order(2)
         @DisplayName("게시글 찾기 기능 - 성공")
         void testFindFeed() {
             // given
@@ -79,7 +77,7 @@ public class FeedServiceIntegerationTest {
         }
 
         @Test
-        @Order(7)
+        @Order(3)
         @DisplayName("게시글 찾기 기능 - 실패")
         void testFindFeedFail() {
             // given
@@ -96,7 +94,7 @@ public class FeedServiceIntegerationTest {
     class LikeTest {
 
         @Test
-        @Order(8)
+        @Order(4)
         @DisplayName("좋아요 추가")
         void testIncreasFeedLike() {
             // given
@@ -110,7 +108,7 @@ public class FeedServiceIntegerationTest {
         }
 
         @Test
-        @Order(9)
+        @Order(5)
         @DisplayName("좋아요 삭제")
         void testDecreaseFeedLike() {
             // given
@@ -125,7 +123,7 @@ public class FeedServiceIntegerationTest {
     }
 
     @Test
-    @Order(2)
+    @Order(6)
     @DisplayName("게시글 수정")
     void testUpdateFeed() throws NoSuchFieldException, IllegalAccessException {
         // given
@@ -149,7 +147,7 @@ public class FeedServiceIntegerationTest {
     }
 
     @Test
-    @Order(3)
+    @Order(7)
     @DisplayName("모든 게시글 조회")
     void testGetAllFeeds() {
         // given
@@ -174,7 +172,7 @@ public class FeedServiceIntegerationTest {
     }
 
     @Test
-    @Order(4)
+    @Order(8)
     @DisplayName("단건 게시글 조회")
     void testGetFeed() {
         // when
@@ -187,7 +185,7 @@ public class FeedServiceIntegerationTest {
     }
 
     @Test
-    @Order(5)
+    @Order(9)
     @DisplayName("게시글 삭제")
     void deleteFeed() {
         // given
