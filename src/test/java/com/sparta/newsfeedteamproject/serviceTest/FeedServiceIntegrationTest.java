@@ -124,33 +124,58 @@ public class FeedServiceIntegrationTest {
         }
     }
 
-    @Test
-    @Order(6)
+    @Nested
     @DisplayName("게시글 수정")
-    @Transactional
-    void testUpdateFeed() throws NoSuchFieldException, IllegalAccessException {
-        // given
-        Long feedId = this.createdFeed.getId();
-        String contents = "UPDATE Test Feed";
+    class UpdateFeedTest {
+        @Test
+        @Order(6)
+        @DisplayName("게시글 수정 - 성공")
+        @Transactional
+        void testUpdateFeed() throws NoSuchFieldException, IllegalAccessException {
+            // given
+            Long feedId = createdFeed.getId();
+            String contents = "UPDATE Test Feed";
 
-        FeedReqDto feedReqDto = new FeedReqDto();
-        Field field = FeedReqDto.class.getDeclaredField("contents");
-        field.setAccessible(true);
-        field.set(feedReqDto, contents);
+            FeedReqDto feedReqDto = new FeedReqDto();
+            Field field = FeedReqDto.class.getDeclaredField("contents");
+            field.setAccessible(true);
+            field.set(feedReqDto, contents);
 
-        user = userRepository.findById(1L).orElse(null);
+            user = userRepository.findById(1L).orElse(null);
 
-        // when
-        MessageResDto<FeedResDto> messageResDto = feedService.updateFeed(feedId, feedReqDto, user);
+            // when
+            MessageResDto<FeedResDto> messageResDto = feedService.updateFeed(feedId, feedReqDto, user);
 
-        // then
-        assertEquals(contents, messageResDto.getData(), "feed 내용이 올바르게 수정되지 않았습니다.");
+            // then
+            assertEquals(contents, messageResDto.getData(), "feed 내용이 올바르게 수정되지 않았습니다.");
 
-        this.feedContents = contents;
+            feedContents = contents;
+        }
+
+        @Test
+        @Order(7)
+        @DisplayName("게시글 수정 - 실패")
+        @Transactional
+        void testUpdateFeedFail() throws NoSuchFieldException, IllegalAccessException {
+            // given
+            Long feedId = createdFeed.getId();
+            String contents = "UPDATE Test Feed";
+
+            FeedReqDto feedReqDto = new FeedReqDto();
+            Field field = FeedReqDto.class.getDeclaredField("contents");
+            field.setAccessible(true);
+            field.set(feedReqDto, contents);
+
+            user = userRepository.findById(2L).orElse(null);
+
+            // when - then
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> feedService.updateFeed(feedId, feedReqDto, user));
+            assertEquals("해당 작업은 작성자만 수정/삭제 할 수 있습니다!", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
+        }
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     @DisplayName("모든 게시글 조회")
     void testGetAllFeeds() {
         // given
@@ -175,7 +200,7 @@ public class FeedServiceIntegrationTest {
     }
 
     @Test
-    @Order(8)
+    @Order(9)
     @DisplayName("단건 게시글 조회")
     void testGetFeed() {
         // when
@@ -188,7 +213,7 @@ public class FeedServiceIntegrationTest {
     }
 
     @Test
-    @Order(9)
+    @Order(10)
     @DisplayName("게시글 삭제")
     void deleteFeed() {
         // given
