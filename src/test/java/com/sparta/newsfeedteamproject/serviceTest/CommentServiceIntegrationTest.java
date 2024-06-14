@@ -194,4 +194,42 @@ public class CommentServiceIntegrationTest {
         List<Like> foundLikeList = likeRepository.findAllByContentsIdAndContents(commentId, Contents.COMMENT).orElse(null);
         assertEquals(0, foundLikeList.size(), "좋아요가 올바르게 삭제되지 않았습니다.");
     }
+
+    @Nested
+    @DisplayName("댓글 삭제")
+    class DeleteCommentTest {
+        @Test
+        @Order(10)
+        @DisplayName("댓글 삭제 - 성공")
+        void testdeleteComment() {
+            // given
+            Long commentId = createdComment.getId();
+            Long feedId = createdComment.getFeed().getId();
+            user = userRepository.findById(1L).orElse(null);
+
+            // when
+            MessageResDto<CommentDelResDto> messageResDto = commentService.deleteComment(feedId, commentId, user);
+
+            // then
+            assertEquals("댓글 삭제가 완료되었습니다!", messageResDto.getMessage(), "댓글이 올바르게 삭제되지 않았습니다.");
+        }
+
+        @Test
+        @Order(11)
+        @DisplayName("댓글 삭제 - 실패")
+        void testdeleteFeedFail() {
+            // given
+            Long commentId = createdComment.getId();
+            Long feedId = createdComment.getFeed().getId();
+            user = userRepository.findById(1L).orElse(null);
+
+            // when
+            commentService.deleteComment(feedId, commentId, user);
+
+            // then
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> commentService.deleteComment(feedId, commentId, user));
+            assertEquals("해당 작업은 작성자만 수정/삭제 할 수 있습니다!", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
+        }
+
+    }
 }
