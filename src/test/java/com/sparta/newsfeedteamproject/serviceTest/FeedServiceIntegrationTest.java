@@ -11,6 +11,7 @@ import com.sparta.newsfeedteamproject.service.FeedService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -95,6 +96,7 @@ public class FeedServiceIntegrationTest {
         @Test
         @Order(4)
         @DisplayName("좋아요 추가")
+        @Transactional
         void testIncreasFeedLike() {
             // given
             Long feedId = createdFeed.getId();
@@ -109,6 +111,7 @@ public class FeedServiceIntegrationTest {
         @Test
         @Order(5)
         @DisplayName("좋아요 삭제")
+        @Transactional
         void testDecreaseFeedLike() {
             // given
             Long feedId = createdFeed.getId();
@@ -124,6 +127,7 @@ public class FeedServiceIntegrationTest {
     @Test
     @Order(6)
     @DisplayName("게시글 수정")
+    @Transactional
     void testUpdateFeed() throws NoSuchFieldException, IllegalAccessException {
         // given
         Long feedId = this.createdFeed.getId();
