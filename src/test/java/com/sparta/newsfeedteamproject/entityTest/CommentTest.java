@@ -58,9 +58,9 @@ public class CommentTest {
     @DisplayName("생성자 테스트")
     void testCommentConstrcutor() {
         // when - then
-        assertEquals("댓글 테스트입니다.", feed.getContents(), "댓글이 올바르게 설정되지 않았습니다.");
-        assertEquals(user, feed.getUser(), "User가 올바르게 설정되지 않았습니다.");
-        assertEquals(0L, feed.getLikes(), "Likes가 올바르게 설정되지 않았습니다.");
+        assertEquals("댓글 테스트입니다.", comment.getContents(), "댓글이 올바르게 설정되지 않았습니다.");
+        assertEquals(user, comment.getUser(), "User가 올바르게 설정되지 않았습니다.");
+        assertEquals(0L, comment.getLikes(), "Likes가 올바르게 설정되지 않았습니다.");
     }
 
     // update 테스트
