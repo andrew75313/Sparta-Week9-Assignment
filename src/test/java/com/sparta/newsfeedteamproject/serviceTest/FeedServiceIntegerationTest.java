@@ -1,7 +1,6 @@
 package com.sparta.newsfeedteamproject.serviceTest;
 
 import com.sparta.newsfeedteamproject.dto.MessageResDto;
-import com.sparta.newsfeedteamproject.dto.comment.CommentResDto;
 import com.sparta.newsfeedteamproject.dto.feed.FeedReqDto;
 import com.sparta.newsfeedteamproject.dto.feed.FeedResDto;
 import com.sparta.newsfeedteamproject.entity.Feed;
@@ -11,9 +10,9 @@ import com.sparta.newsfeedteamproject.service.FeedService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 
 import java.lang.reflect.Field;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,6 +31,7 @@ public class FeedServiceIntegerationTest {
     User user;
     Feed createdFeed = null;
     String feedContents = "";
+    Long feedId;
 
     @Test
     @Order(1)
@@ -85,19 +85,36 @@ public class FeedServiceIntegerationTest {
     @DisplayName("모든 게시글 조회")
     void testGetAllFeeds() {
         // given
+        user = userRepository.findById(1L).orElse(null);
+
         // when
         MessageResDto<List<FeedResDto>> messageResDto = feedService.getAllFeeds(0, "createdAt", null, null);
 
         // then
         Long createdFeedId = this.createdFeed.getId();
 
-        FeedResDto foundFeedResDTo = messageResDto.getData().stream()
+        FeedResDto foundFeedResDto = messageResDto.getData().stream()
                 .filter(feed -> feed.getId().equals(createdFeed))
                 .findFirst()
                 .orElse(null);
 
-        assertNotNull(foundFeedResDTo,"feed가 올바르게 조회되지 않았습니다.");
-        assertEquals(createdFeedId, foundFeedResDTo.getId(), "feed Id가 올바르게 조회되지 않았습니다.");
-        assertEquals(this.createdFeed.getContents(), foundFeedResDTo.getContents(), "feed 내용이 올바르게 조회되지 않았습니다.");
+        assertNotNull(foundFeedResDto, "feed가 올바르게 조회되지 않았습니다.");
+        assertEquals(createdFeedId, foundFeedResDto.getId(), "feed Id가 올바르게 조회되지 않았습니다.");
+        assertEquals(this.createdFeed.getContents(), foundFeedResDto.getContents(), "feed 내용이 올바르게 조회되지 않았습니다.");
+
+        feedId = createdFeedId;
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("단건 게시글 조회")
+    void testGetFeed() {
+        // when
+        MessageResDto<FeedResDto> messageResDto = feedService.getFeed(feedId);
+
+        // then
+        FeedResDto foundFeedResDto = messageResDto.getData();
+
+        assertEquals(this.feedContents, foundFeedResDto.getContents(), "조회할 feed가 올바르게 조회되지 않았습니다.");
     }
 }
