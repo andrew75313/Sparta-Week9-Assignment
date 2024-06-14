@@ -3,6 +3,8 @@ package com.sparta.newsfeedteamproject.serviceTest;
 import com.sparta.newsfeedteamproject.dto.MessageResDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentReqDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentResDto;
+import com.sparta.newsfeedteamproject.dto.feed.FeedReqDto;
+import com.sparta.newsfeedteamproject.dto.feed.FeedResDto;
 import com.sparta.newsfeedteamproject.entity.Comment;
 import com.sparta.newsfeedteamproject.entity.Feed;
 import com.sparta.newsfeedteamproject.entity.User;
@@ -34,6 +36,7 @@ public class CommentServiceIntegrationTest {
     User user;
     Feed feed;
     Comment createdComment = null;
+    String commentContents = "";
 
     @Test
     @Order(1)
@@ -122,5 +125,30 @@ public class CommentServiceIntegrationTest {
             // then
             assertEquals(0L, createdComment.getLikes(), "좋아요가 올바르게 삭제되지 않았습니다.");
         }
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("댓글 수정")
+    @Transactional
+    void testUpdateComment() throws NoSuchFieldException, IllegalAccessException {
+        // given
+        Long commentId = this.createdComment.getId();
+        String contents = "UPDATE Test Comment";
+
+        CommentReqDto commentReqDto = new CommentReqDto();
+        Field field = CommentReqDto.class.getDeclaredField("contents");
+        field.setAccessible(true);
+        field.set(commentReqDto, contents);
+
+        user = userRepository.findById(1L).orElse(null);
+
+        // when
+        MessageResDto<CommentResDto> messageResDto = commentService.updateComment(1L, commentId, commentReqDto, user);
+
+        // then
+        assertEquals(contents, messageResDto.getData(), "댓글 내용이 올바르게 수정되지 않았습니다.");
+
+        this.commentContents = contents;
     }
 }
