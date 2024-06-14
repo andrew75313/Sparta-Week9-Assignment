@@ -34,7 +34,6 @@ public class CommentServiceIntegrationTest {
     CommentRepository commentRepository;
 
     User user;
-    Feed feed;
     Comment createdComment = null;
     String commentContents = "";
 
@@ -43,15 +42,19 @@ public class CommentServiceIntegrationTest {
     @DisplayName("댓글 등록")
     void testCreatedComment() throws NoSuchFieldException, IllegalAccessException {
         // given
-        String contents = "Test Coomment";
+        String contents = "Test Comment";
 
         CommentReqDto commentReqDto = new CommentReqDto();
-        Field field = CommentReqDto.class.getDeclaredField("contents");
-        field.setAccessible(true);
-        field.set(commentReqDto, contents);
+        Field contentsField = CommentReqDto.class.getDeclaredField("contents");
+        contentsField.setAccessible(true);
+        contentsField.set(commentReqDto, contents);
 
         user = userRepository.findById(1L).orElse(null);
 
+        Feed feed = new Feed();
+        Field idField = Feed.class.getDeclaredField("id");
+        idField.setAccessible(true);
+        idField.set(feed, 1L);
 
         // when
         MessageResDto<CommentResDto> messageResDto = commentService.createComment(1L, commentReqDto, user);
