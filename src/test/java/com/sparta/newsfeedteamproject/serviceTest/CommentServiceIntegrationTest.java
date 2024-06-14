@@ -12,6 +12,7 @@ import com.sparta.newsfeedteamproject.service.CommentService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Field;
 
@@ -85,6 +86,41 @@ public class CommentServiceIntegrationTest {
             // when - then
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> commentService.findComment(commentId));
             assertEquals("해당 요소가 존재하지 않습니다.", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
+        }
+    }
+
+    @Nested
+    @DisplayName("좋아요 기능")
+    class LikeTest {
+
+        @Test
+        @Order(4)
+        @DisplayName("좋아요 추가")
+        @Transactional
+        void testIncreasCommentLike() {
+            // given
+            Long commentId = createdComment.getId();
+
+            // when
+            commentService.increaseCommentLikes(commentId);
+
+            // then
+            assertEquals(1L, createdComment.getLikes(), "좋아요가 올바르게 추가되지 않았습니다.");
+        }
+
+        @Test
+        @Order(5)
+        @DisplayName("좋아요 삭제")
+        @Transactional
+        void testDecreaseFeedLike() {
+            // given
+            Long commentId = createdComment.getId();
+
+            // when
+            commentService.decreaseCommentLikes(commentId);
+
+            // then
+            assertEquals(0L, createdComment.getLikes(), "좋아요가 올바르게 삭제되지 않았습니다.");
         }
     }
 }
