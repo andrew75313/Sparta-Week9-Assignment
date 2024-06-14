@@ -5,12 +5,12 @@ import com.sparta.newsfeedteamproject.dto.feed.FeedReqDto;
 import com.sparta.newsfeedteamproject.dto.feed.FeedResDto;
 import com.sparta.newsfeedteamproject.entity.Feed;
 import com.sparta.newsfeedteamproject.entity.User;
+import com.sparta.newsfeedteamproject.repository.FeedRepository;
 import com.sparta.newsfeedteamproject.repository.UserRepository;
 import com.sparta.newsfeedteamproject.service.FeedService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -27,6 +27,8 @@ public class FeedServiceIntegerationTest {
     FeedService feedService;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    FeedRepository feedRepository;
 
     User user;
     Feed createdFeed = null;
@@ -116,5 +118,19 @@ public class FeedServiceIntegerationTest {
         FeedResDto foundFeedResDto = messageResDto.getData();
 
         assertEquals(this.feedContents, foundFeedResDto.getContents(), "조회할 feed가 올바르게 조회되지 않았습니다.");
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("게시글 삭제")
+    void deleteFeed() {
+        // given
+        user = userRepository.findById(1L).orElse(null);
+
+        // when
+        MessageResDto<FeedResDto> messageResDto = feedService.deleteFeed(feedId, user);
+
+        // then
+        assertEquals("게시물 삭제가 완료되었습니다!", messageResDto.getMessage(), "feed가 올바르게 삭제되지 않았습니다.");
     }
 }
