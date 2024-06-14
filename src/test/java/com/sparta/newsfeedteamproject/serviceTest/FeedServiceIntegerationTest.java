@@ -6,6 +6,7 @@ import com.sparta.newsfeedteamproject.dto.feed.FeedResDto;
 import com.sparta.newsfeedteamproject.entity.Feed;
 import com.sparta.newsfeedteamproject.entity.User;
 import com.sparta.newsfeedteamproject.repository.FeedRepository;
+import com.sparta.newsfeedteamproject.repository.LikeRepository;
 import com.sparta.newsfeedteamproject.repository.UserRepository;
 import com.sparta.newsfeedteamproject.service.FeedService;
 import org.junit.jupiter.api.*;
@@ -28,6 +29,8 @@ public class FeedServiceIntegerationTest {
     UserRepository userRepository;
     @Autowired
     FeedRepository feedRepository;
+    @Autowired
+    LikeRepository likeRepository;
 
     User user;
     Feed createdFeed = null;
@@ -85,6 +88,39 @@ public class FeedServiceIntegerationTest {
             // when - then
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> feedService.findFeed(feedId));
             assertEquals("해당 요소가 존재하지 않습니다.", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
+        }
+    }
+
+    @Nested
+    @DisplayName("좋아요 기능")
+    class LikeTest {
+
+        @Test
+        @Order(8)
+        @DisplayName("좋아요 추가")
+        void testIncreasFeedLike() {
+            // given
+            Long feedId = createdFeed.getId();
+
+            // when
+            feedService.increaseFeedLikes(feedId);
+
+            // then
+            assertEquals(1L, createdFeed.getLikes(), "좋아요가 올바르게 추가되지 않았습니다.");
+        }
+
+        @Test
+        @Order(9)
+        @DisplayName("좋아요 삭제")
+        void testDecreaseFeedLike() {
+            // given
+            Long feedId = createdFeed.getId();
+
+            // when
+            feedService.decreaseFeedLikes(feedId);
+
+            // then
+            assertEquals(0L, createdFeed.getLikes(), "좋아요가 올바르게 삭제되지 않았습니다.");
         }
     }
 
