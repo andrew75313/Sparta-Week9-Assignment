@@ -27,6 +27,7 @@ public class FeedServiceIntegerationTest {
 
     User user;
     Feed createdFeed = null;
+    String feedContents = "";
 
     @Test
     @Order(1)
@@ -49,5 +50,29 @@ public class FeedServiceIntegerationTest {
         assertEquals(contents, messageResDto.getData(), "feed 내용이 올바르게 생성되지 않았습니다.");
 
         createdFeed = new Feed(feedReqDto, user);
+    }
+
+    @Test
+    @Order(2)
+    @DisplayName("게시글 수정")
+    void testUpdateFeed() throws NoSuchFieldException, IllegalAccessException {
+        // given
+        Long feedId = this.createdFeed.getId();
+        String contents = "UPDATE Test Feed";
+
+        FeedReqDto feedReqDto = new FeedReqDto();
+        Field field = FeedReqDto.class.getDeclaredField("contents");
+        field.setAccessible(true);
+        field.set(feedReqDto, contents);
+
+        user = userRepository.findById(1L).orElse(null);
+
+        // when
+        MessageResDto<FeedResDto> messageResDto = feedService.updateFeed(feedId, feedReqDto, user);
+
+        // then
+        assertEquals(contents, messageResDto.getData(), "feed 내용이 올바르게 수정되지 않았습니다.");
+
+        this.feedContents = contents;
     }
 }
