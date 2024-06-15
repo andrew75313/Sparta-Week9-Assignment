@@ -41,28 +41,29 @@ public class FeedServiceUnitTest {
 
     FeedReqDto feedReqDto;
     User user;
+    Feed feed;
 
+
+    @BeforeEach
+    void beforeFindFeedTest() throws NoSuchFieldException, IllegalAccessException {
+        feedReqDto = new FeedReqDto();
+        Field field = FeedReqDto.class.getDeclaredField("contents");
+        field.setAccessible(true);
+        field.set(feedReqDto, contents);
+
+        user = new User(username, password, name, email, userInfo, status, LocalDateTime.now());
+
+        feed = new Feed(feedReqDto, user);
+    }
 
     @Nested
     @DisplayName("게시글 찾기")
     class FindFeedTest {
 
-        @BeforeEach
-        void beforeFindFeedTest() throws NoSuchFieldException, IllegalAccessException {
-            feedReqDto = new FeedReqDto();
-            Field field = FeedReqDto.class.getDeclaredField("contents");
-            field.setAccessible(true);
-            field.set(feedReqDto, contents);
-
-            user = new User(username, password, name, email, userInfo, status, LocalDateTime.now());
-        }
-
         @Test
         @DisplayName("게시글 찾기 - 성공")
         void testFindFeed() {
             // given
-            Feed feed = new Feed(feedReqDto, user);
-
             given(feedRepository.findById(feed.getId())).willReturn(Optional.of(feed));
 
             // when
@@ -78,8 +79,6 @@ public class FeedServiceUnitTest {
         @DisplayName("게시글 찾기 - 실패")
         void testFindFeedNoFeedFail() {
             // given
-            Feed feed = new Feed(feedReqDto, user);
-
             given(feedRepository.findById(feed.getId())).willReturn(Optional.empty());
 
             // when - then
@@ -93,22 +92,10 @@ public class FeedServiceUnitTest {
     @DisplayName("좋아요 기능")
     class LikeTest {
 
-        @BeforeEach
-        void beforeFindFeedTest() throws NoSuchFieldException, IllegalAccessException {
-            feedReqDto = new FeedReqDto();
-            Field field = FeedReqDto.class.getDeclaredField("contents");
-            field.setAccessible(true);
-            field.set(feedReqDto, contents);
-
-            user = new User(username, password, name, email, userInfo, status, LocalDateTime.now());
-        }
-
         @Test
         @DisplayName("게시글 좋아요 추가")
         void testIncreaseFeedLikes() {
             // given
-            Feed feed = new Feed(feedReqDto, user);
-
             given(feedRepository.findById(feed.getId())).willReturn(Optional.of(feed));
 
             // when
@@ -123,8 +110,6 @@ public class FeedServiceUnitTest {
         @DisplayName("게시글 좋아요 삭제")
         void testDecreaseFeedLikes() {
             // given
-            Feed feed = new Feed(feedReqDto, user);
-
             given(feedRepository.findById(feed.getId())).willReturn(Optional.of(feed));
 
             // when
