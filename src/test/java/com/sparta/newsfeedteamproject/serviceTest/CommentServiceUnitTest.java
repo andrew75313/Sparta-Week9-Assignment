@@ -46,34 +46,35 @@ public class CommentServiceUnitTest {
     CommentReqDto commentReqDto;
     User user;
     Feed feed;
+    Comment comment;
+
+    @BeforeEach
+    void beforeFindLikeTest() throws NoSuchFieldException, IllegalAccessException {
+        user = new User(username, password, name, email, userInfo, status, LocalDateTime.now());
+
+        feedReqDto = new FeedReqDto();
+        Field feedContentsField = FeedReqDto.class.getDeclaredField("contents");
+        feedContentsField.setAccessible(true);
+        feedContentsField.set(feedReqDto, contents);
+
+        feed = new Feed(feedReqDto, user);
+
+        commentReqDto = new CommentReqDto();
+        Field commentContentField = CommentReqDto.class.getDeclaredField("contents");
+        commentContentField.setAccessible(true);
+        commentContentField.set(commentReqDto, contents);
+
+        comment = new Comment(commentReqDto, feed, user, likes);
+    }
 
     @Nested
     @DisplayName("댓글 찾기")
     class FindCommentTest {
 
-        @BeforeEach
-        void beforeCommentTest() throws NoSuchFieldException, IllegalAccessException {
-            user = new User(username, password, name, email, userInfo, status, LocalDateTime.now());
-
-            feedReqDto = new FeedReqDto();
-            Field feedContentsField = FeedReqDto.class.getDeclaredField("contents");
-            feedContentsField.setAccessible(true);
-            feedContentsField.set(feedReqDto, contents);
-
-            Feed feed = new Feed(feedReqDto, user);
-
-            commentReqDto = new CommentReqDto();
-            Field commentContentField = CommentReqDto.class.getDeclaredField("contents");
-            commentContentField.setAccessible(true);
-            commentContentField.set(commentReqDto, contents);
-        }
-
         @Test
         @DisplayName("댓글 찾기 - 성공")
         void testFindComment() {
             // given
-            Comment comment = new Comment(commentReqDto, feed, user, likes);
-
             given(commentRepository.findById(comment.getId())).willReturn(Optional.of(comment));
 
             // when
@@ -90,8 +91,6 @@ public class CommentServiceUnitTest {
         @DisplayName("댓글 찾기 - 실패")
         void testFindCommentNoCommentFail() {
             // given
-            Comment comment = new Comment(commentReqDto, feed, user, likes);
-
             given(commentRepository.findById(comment.getId())).willReturn(Optional.empty());
 
             // when - then
@@ -104,29 +103,10 @@ public class CommentServiceUnitTest {
     @DisplayName("좋아요 기능")
     class LikeTest {
 
-        @BeforeEach
-        void beforeFindLikeTest() throws NoSuchFieldException, IllegalAccessException {
-            user = new User(username, password, name, email, userInfo, status, LocalDateTime.now());
-
-            feedReqDto = new FeedReqDto();
-            Field feedContentsField = FeedReqDto.class.getDeclaredField("contents");
-            feedContentsField.setAccessible(true);
-            feedContentsField.set(feedReqDto, contents);
-
-            feed = new Feed(feedReqDto, user);
-
-            commentReqDto = new CommentReqDto();
-            Field commentContentField = CommentReqDto.class.getDeclaredField("contents");
-            commentContentField.setAccessible(true);
-            commentContentField.set(commentReqDto, contents);
-        }
-
         @Test
         @DisplayName("댓글 좋아요 추가")
         void testIncreaseCommentLikes() {
             // given
-            Comment comment = new Comment(commentReqDto, feed, user, likes);
-
             given(commentRepository.findById(comment.getId())).willReturn(Optional.of(comment));
 
             // when
@@ -141,8 +121,6 @@ public class CommentServiceUnitTest {
         @DisplayName("댓글 좋아요 삭제")
         void testDecreaseCommentLikes() {
             // given
-            Comment comment = new Comment(commentReqDto, feed, user, likes);
-
             given(commentRepository.findById(comment.getId())).willReturn(Optional.of(comment));
 
             // when
