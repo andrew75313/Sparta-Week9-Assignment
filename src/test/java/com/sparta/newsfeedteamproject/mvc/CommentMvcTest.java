@@ -34,8 +34,7 @@ import java.time.LocalDateTime;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -139,7 +138,6 @@ public class CommentMvcTest {
         Feed feed = mockFeedSetup(feedId);
         Comment comment = new Comment(commentReqDto, feed, user, 0L);
         CommentResDto commentResDto = new CommentResDto(comment);
-
         MessageResDto<CommentResDto> response = new MessageResDto<>(200, "댓글 작성이 완료되었습니다!", commentResDto);
 
         String postInfo = objectMapper.writeValueAsString(commentReqDto);
@@ -175,6 +173,35 @@ public class CommentMvcTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(1L))
                 .andExpect(jsonPath("$.data.contents").value("Test"))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("댓글 수정")
+    void testUpdateComment() throws Exception {
+        // given
+        Long feedId = 1L;
+        CommentReqDto commentReqDto = mockCommentReqDtoSetup();
+        User user = mockUserSetup().getUser();
+        Feed feed = mockFeedSetup(feedId);
+        Comment comment = new Comment(commentReqDto, feed, user, 0L);
+        Long commentId = comment.getId();
+        CommentResDto commentResDto = new CommentResDto(comment);
+        MessageResDto<CommentResDto> response = new MessageResDto<>(200, "댓글 수정이 완료되었습니다!", commentResDto);
+
+        String putInfo = objectMapper.writeValueAsString(commentReqDto);
+
+        // when
+        given(commentService.updateComment(feedId, commentId, commentReqDto, user)).willReturn(response);
+
+        // then
+        mvc.perform(put("/{feedId}/comments/{commentId}", feedId, commentId)
+                        .content(putInfo)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .principal(mockPrincipal)
+                )
+                .andExpect(status().isOk())
                 .andDo(print());
     }
 }
