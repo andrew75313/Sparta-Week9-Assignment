@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.newsfeedteamproject.config.SecurityConfig;
 import com.sparta.newsfeedteamproject.controller.CommentController;
 import com.sparta.newsfeedteamproject.dto.MessageResDto;
+import com.sparta.newsfeedteamproject.dto.comment.CommentDelResDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentReqDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentResDto;
 import com.sparta.newsfeedteamproject.dto.feed.FeedReqDto;
-import com.sparta.newsfeedteamproject.dto.feed.FeedResDto;
 import com.sparta.newsfeedteamproject.entity.Comment;
 import com.sparta.newsfeedteamproject.entity.Feed;
 import com.sparta.newsfeedteamproject.entity.Status;
@@ -200,6 +200,28 @@ public class CommentMvcTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .principal(mockPrincipal)
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제")
+    void testDeleteComment() throws Exception {
+        // given
+        Long feedId = 1L;
+        Long commentId = 1L;
+        User user = mockUserSetup().getUser();
+        CommentDelResDto commentDelResDto = new CommentDelResDto(commentId);
+        MessageResDto<CommentDelResDto> response = new MessageResDto<>(200, "댓글 삭제가 완료되었습니다!", commentDelResDto);
+
+        // when
+        given(commentService.deleteComment(feedId, commentId, user)).willReturn(response);
+
+        // then
+        mvc.perform(delete("/{feedId}/comments/{commentId}", feedId, commentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
                 .andDo(print());
