@@ -108,4 +108,25 @@ public class FeedMvcTest {
                 .andExpect(jsonPath("$.data[3].contents").value("Test"))
                 .andDo(print());
     }
+
+    @Test
+    @DisplayName("단건 게시글 조회")
+    void testGetFeed() throws Exception {
+        // given
+        Long feedId = 1L;
+
+        FeedResDto feedResDto = mockFeedResDtoSetup(feedId);
+
+        MessageResDto<FeedResDto> messageResDto = new MessageResDto<>(200, "게시물 조회가 완료되었습니다!", feedResDto);
+
+        // when
+        given(feedService.getFeed(feedId)).willReturn(messageResDto);
+
+        // then
+        mvc.perform(get("/feeds/{feedId}", feedId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id").value(1L))
+                .andExpect(jsonPath("$.data.contents").value("Test"))
+                .andDo(print());
+    }
 }
