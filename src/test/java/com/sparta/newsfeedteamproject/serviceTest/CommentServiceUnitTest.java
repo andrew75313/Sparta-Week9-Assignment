@@ -99,4 +99,57 @@ public class CommentServiceUnitTest {
             assertEquals("해당 요소가 존재하지 않습니다.", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
         }
     }
+
+    @Nested
+    @DisplayName("좋아요 기능")
+    class LikeTest {
+
+        @BeforeEach
+        void beforeFindLikeTest() throws NoSuchFieldException, IllegalAccessException {
+            user = new User(username, password, name, email, userInfo, status, LocalDateTime.now());
+
+            feedReqDto = new FeedReqDto();
+            Field feedContentsField = FeedReqDto.class.getDeclaredField("contents");
+            feedContentsField.setAccessible(true);
+            feedContentsField.set(feedReqDto, contents);
+
+            feed = new Feed(feedReqDto, user);
+
+            commentReqDto = new CommentReqDto();
+            Field commentContentField = CommentReqDto.class.getDeclaredField("contents");
+            commentContentField.setAccessible(true);
+            commentContentField.set(commentReqDto, contents);
+        }
+
+        @Test
+        @DisplayName("댓글 좋아요 추가")
+        void testIncreaseCommentLikes() {
+            // given
+            Comment comment = new Comment(commentReqDto, feed, user, likes);
+
+            given(commentRepository.findById(comment.getId())).willReturn(Optional.of(comment));
+
+            // when
+            commentService.increaseCommentLikes(comment.getId());
+
+            // then
+            assertEquals(1L, comment.getLikes(), "좋아요가 올바르게 추가되지 않았습니다!");
+        }
+
+
+        @Test
+        @DisplayName("댓글 좋아요 삭제")
+        void testDecreaseCommentLikes() {
+            // given
+            Comment comment = new Comment(commentReqDto, feed, user, likes);
+
+            given(commentRepository.findById(comment.getId())).willReturn(Optional.of(comment));
+
+            // when
+            commentService.decreaseCommentLikes(comment.getId());
+
+            // then
+            assertEquals(-1L, comment.getLikes(), "좋아요가 올바르게 삭제되지 않았습니다!");
+        }
+    }
 }
