@@ -7,6 +7,7 @@ import com.sparta.newsfeedteamproject.dto.MessageResDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentReqDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentResDto;
 import com.sparta.newsfeedteamproject.dto.feed.FeedReqDto;
+import com.sparta.newsfeedteamproject.dto.feed.FeedResDto;
 import com.sparta.newsfeedteamproject.entity.Comment;
 import com.sparta.newsfeedteamproject.entity.Feed;
 import com.sparta.newsfeedteamproject.entity.Status;
@@ -33,8 +34,10 @@ import java.time.LocalDateTime;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(
@@ -109,6 +112,23 @@ public class CommentMvcTest {
         return commentReqDto;
     }
 
+    private CommentResDto mockCommentResDtoSetup(Long commentId) throws NoSuchFieldException, IllegalAccessException {
+        String contents = "Test";
+        Comment comment = new Comment();
+
+        Field idField = Comment.class.getDeclaredField("id");
+        idField.setAccessible(true);
+        idField.set(comment, commentId);
+
+        Field contentsField = Comment.class.getDeclaredField("contents");
+        contentsField.setAccessible(true);
+        contentsField.set(comment, contents);
+
+        CommentResDto commentResDto = new CommentResDto(comment);
+
+        return commentResDto;
+    }
+
     @Test
     @DisplayName("댓글 생성")
     void testCreateComment() throws Exception {
@@ -135,6 +155,26 @@ public class CommentMvcTest {
                         .principal(mockPrincipal)
                 )
                 .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("댓글 단건 조회")
+    void testGetComment() throws Exception {
+        // given
+        Long feedId = 1L;
+        Long commentId = 1L;
+        CommentResDto commentResDto = mockCommentResDtoSetup(commentId);
+        MessageResDto<CommentResDto> response = new MessageResDto<>(200, "댓글 조회가 완료되었습니다!", commentResDto);
+
+        // when
+        given(commentService.getComment(feedId, commentId)).willReturn(response);
+
+        // then
+        mvc.perform(get("/{feedId}/comments/{commentId}", feedId, commentId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id").value(1L))
+                .andExpect(jsonPath("$.data.contents").value("Test"))
                 .andDo(print());
     }
 }
