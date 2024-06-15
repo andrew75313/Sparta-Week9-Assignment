@@ -226,7 +226,6 @@ public class FeedMvcTest {
 
         // then
         mvc.perform(delete("/feeds/{feedId}", feedId)
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                 )
