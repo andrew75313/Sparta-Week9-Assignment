@@ -1,6 +1,5 @@
-package com.sparta.newsfeedteamproject.dtoTest;
+package com.sparta.newsfeedteamproject.dto;
 
-import com.sparta.newsfeedteamproject.dto.MessageResDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,16 +1,13 @@
-package com.sparta.newsfeedteamproject.serviceTest;
+package com.sparta.newsfeedteamproject.service;
 
 import com.sparta.newsfeedteamproject.dto.MessageResDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentDelResDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentReqDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentResDto;
-import com.sparta.newsfeedteamproject.dto.feed.FeedReqDto;
-import com.sparta.newsfeedteamproject.dto.feed.FeedResDto;
 import com.sparta.newsfeedteamproject.entity.*;
 import com.sparta.newsfeedteamproject.repository.CommentRepository;
 import com.sparta.newsfeedteamproject.repository.LikeRepository;
 import com.sparta.newsfeedteamproject.repository.UserRepository;
-import com.sparta.newsfeedteamproject.service.CommentService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

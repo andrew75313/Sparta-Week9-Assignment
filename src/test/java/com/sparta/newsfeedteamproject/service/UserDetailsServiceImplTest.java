@@ -1,4 +1,4 @@
-package com.sparta.newsfeedteamproject.serviceTest;
+package com.sparta.newsfeedteamproject.service;
 
 import com.sparta.newsfeedteamproject.entity.Status;
 import com.sparta.newsfeedteamproject.entity.User;

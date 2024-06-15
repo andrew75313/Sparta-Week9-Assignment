@@ -1,11 +1,10 @@
-package com.sparta.newsfeedteamproject.serviceTest;
+package com.sparta.newsfeedteamproject.service;
 
 import com.sparta.newsfeedteamproject.dto.feed.FeedReqDto;
 import com.sparta.newsfeedteamproject.entity.Feed;
 import com.sparta.newsfeedteamproject.entity.Status;
 import com.sparta.newsfeedteamproject.entity.User;
 import com.sparta.newsfeedteamproject.repository.FeedRepository;
-import com.sparta.newsfeedteamproject.service.FeedService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

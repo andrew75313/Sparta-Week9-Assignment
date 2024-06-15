@@ -1,10 +1,7 @@
-package com.sparta.newsfeedteamproject.entityTest;
+package com.sparta.newsfeedteamproject.entity;
 
-import com.sparta.newsfeedteamproject.entity.Status;
-import com.sparta.newsfeedteamproject.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;

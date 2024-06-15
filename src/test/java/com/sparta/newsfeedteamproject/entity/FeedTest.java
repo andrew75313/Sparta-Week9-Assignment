@@ -1,11 +1,6 @@
-package com.sparta.newsfeedteamproject.entityTest;
+package com.sparta.newsfeedteamproject.entity;
 
-import com.sparta.newsfeedteamproject.dto.comment.CommentReqDto;
 import com.sparta.newsfeedteamproject.dto.feed.FeedReqDto;
-import com.sparta.newsfeedteamproject.entity.Comment;
-import com.sparta.newsfeedteamproject.entity.Feed;
-import com.sparta.newsfeedteamproject.entity.Status;
-import com.sparta.newsfeedteamproject.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -15,19 +10,15 @@ import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-public class CommentTest {
+public class FeedTest {
 
-
-    User user;
     Feed feed;
-    Comment comment;
+    User user;
     @Mock
     FeedReqDto feedReqDto;
-    @Mock
-    CommentReqDto commentReqDto;
 
     @BeforeEach
     void setUp() {
@@ -43,24 +34,21 @@ public class CommentTest {
                 Status.ACTIVATE,
                 LocalDateTime.now());
 
+        // 임의의 FeedReqDto Mock 객체
+        when(feedReqDto.getContents()).thenReturn("게시글 테스트입니다.");
+
         // 임의의 Feed 객체
         feed = new Feed(feedReqDto, user);
-
-        // 임의의 CommentReqDto Mock 객체
-        when(commentReqDto.getContents()).thenReturn("댓글 테스트입니다.");
-
-        // 임의의 Comment 객체
-        comment = new Comment(commentReqDto, feed, user, 0L);
     }
 
     // 생성자 테스트
     @Test
     @DisplayName("생성자 테스트")
-    void testCommentConstrcutor() {
+    void testFeedConstrcutor() {
         // when - then
-        assertEquals("댓글 테스트입니다.", comment.getContents(), "댓글이 올바르게 설정되지 않았습니다.");
-        assertEquals(user, comment.getUser(), "User가 올바르게 설정되지 않았습니다.");
-        assertEquals(0L, comment.getLikes(), "Likes가 올바르게 설정되지 않았습니다.");
+        assertEquals("게시글 테스트입니다.", feed.getContents(), "게시글이 올바르게 설정되지 않았습니다.");
+        assertEquals(user, feed.getUser(), "User가 올바르게 설정되지 않았습니다.");
+        assertEquals(0L, feed.getLikes(), "Likes가 올바르게 설정되지 않았습니다.");
     }
 
     // update 테스트
@@ -68,14 +56,14 @@ public class CommentTest {
     @DisplayName("update 테스트")
     void testUpdate() {
         // given
-        String updateContents = "댓글 Update 테스트 입니다.";
+        String updateContents = "게시글 Update 테스트 입니다.";
         when(feedReqDto.getContents()).thenReturn(updateContents);
 
         // when
         feed.update(feedReqDto);
 
         // then
-        assertEquals(updateContents, feed.getContents(), "댓글이 업데이트되지 않았습니다.");
+        assertEquals(updateContents, feed.getContents(), "게시글이 업데이트되지 않았습니다.");
     }
 
     // like 기능 테스트
@@ -87,21 +75,20 @@ public class CommentTest {
         @DisplayName("좋아요 추가 테스트")
         void testIncreaseLikes() {
             // when
-            comment.increaseLikes();
+            feed.increaseLikes();
 
             // then
-            assertEquals(1, comment.getLikes(), "좋아요가 추가되지 않았습니다.");
+            assertEquals(1, feed.getLikes(), "좋아요가 추가되지 않았습니다.");
         }
 
         @Test
         @DisplayName("좋아요 삭제 테스트")
         void testDecreaseLikes() {
             // when
-            comment.decreaseLikes();
+            feed.decreaseLikes();
 
             // then
-            assertEquals(-1, comment.getLikes(), "좋아요가 삭제되지 않았습니다.");
+            assertEquals(-1, feed.getLikes(), "좋아요가 삭제되지 않았습니다.");
         }
     }
-
 }

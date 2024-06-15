@@ -1,4 +1,4 @@
-package com.sparta.newsfeedteamproject.serviceTest;
+package com.sparta.newsfeedteamproject.service;
 
 import com.sparta.newsfeedteamproject.dto.user.ProfileResDto;
 import com.sparta.newsfeedteamproject.dto.user.SignupReqDto;
@@ -8,7 +8,6 @@ import com.sparta.newsfeedteamproject.entity.Status;
 import com.sparta.newsfeedteamproject.entity.User;
 import com.sparta.newsfeedteamproject.repository.UserRepository;
 import com.sparta.newsfeedteamproject.security.UserDetailsImpl;
-import com.sparta.newsfeedteamproject.service.UserService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
