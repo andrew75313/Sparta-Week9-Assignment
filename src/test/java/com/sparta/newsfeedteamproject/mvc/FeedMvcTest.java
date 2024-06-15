@@ -33,6 +33,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -207,6 +208,27 @@ public class FeedMvcTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .principal(mockPrincipal)
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("게시글 삭제")
+    void testDeleteFeed() throws Exception {
+        // given
+        Long feedId = 1L;
+        User user = mockUserSetup().getUser();
+        MessageResDto<FeedResDto> response = new MessageResDto<>(200, "게시물 삭제가 완료되었습니다!", null);
+
+        // when
+        given(feedService.deleteFeed(feedId, user)).willReturn(response);
+
+        // then
+        mvc.perform(delete("/feeds/{feedId}", feedId)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
                 .andDo(print());
