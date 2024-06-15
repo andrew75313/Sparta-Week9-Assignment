@@ -34,8 +34,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -178,6 +177,33 @@ public class FeedMvcTest {
         // then
         mvc.perform(post("/feeds")
                         .content(postInfo)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .principal(mockPrincipal)
+                )
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("게시글 수정")
+    void testUpdateFeed() throws Exception {
+        // given
+        FeedReqDto feedReqDto = mockFeedReqDtoSetup();
+        User user = mockUserSetup().getUser();
+        Feed feed = new Feed(feedReqDto, user);
+        Long feedId = feed.getId();
+        FeedResDto feedResDto = new FeedResDto(feed);
+        MessageResDto<FeedResDto> response = new MessageResDto<>(200, "게시물 수정이 완료되었습니다!", feedResDto);
+
+        String putInfo = objectMapper.writeValueAsString(feedReqDto);
+
+        // when
+        given(feedService.updateFeed(feedId, feedReqDto, user)).willReturn(response);
+
+        // then
+        mvc.perform(put("/feeds/{feedId}", feedId)
+                        .content(putInfo)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .principal(mockPrincipal)
