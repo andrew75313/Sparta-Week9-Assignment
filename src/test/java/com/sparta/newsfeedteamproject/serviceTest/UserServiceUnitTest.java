@@ -75,4 +75,41 @@ public class UserServiceUnitTest {
             assertEquals("존재하지 않는 사용자입니다.", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
         }
     }
+
+    @Nested
+    @DisplayName("Email로 사용자 찾기")
+    class FindByEmailTest {
+
+        @Test
+        @DisplayName("Email으로 사용자 찾기 - 성공")
+        void testFindByEmail() {
+            // given
+            User user = new User(username, password, name, email, userInfo, status, LocalDateTime.now());
+
+            given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+
+            // when
+            User foundUser = userService.findByUsername(email);
+
+            // then
+            assertNotNull(foundUser, "사용자가 올바르게 찾아지지 않았습니다.");
+            assertEquals(username, foundUser.getUsername(), "사용자의 Username이 올바르지 않습니다.");
+            assertEquals(name, foundUser.getName(), "사용자의 Name이 올바르지 않습니다.");
+            assertEquals(email, foundUser.getEmail(), "사용자의 Email이 올바르지 않습니다.");
+            assertEquals(userInfo, foundUser.getUserInfo(), "사용자의 UserInfo가 올바르지 않습니다.");
+        }
+
+        @Test
+        @DisplayName("Email으로 사용자 찾기 - 실패")
+        void testFindByEmailNoUserFail() {
+            // given
+            User user = new User(username, password, name, email, userInfo, status, LocalDateTime.now());
+
+            given(userRepository.findByEmail(email)).willReturn(Optional.of(null));
+
+            // when - then
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.findByEmail(email));
+            assertEquals("존재하지 않는 사용자입니다.", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
+        }
+    }
 }
