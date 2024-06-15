@@ -68,7 +68,7 @@ public class UserServiceUnitTest {
             // given
             User user = new User(username, password, name, email, userInfo, status, LocalDateTime.now());
 
-            given(userRepository.findByUsername(username)).willReturn(Optional.of(null));
+            given(userRepository.findByUsername(username)).willReturn(Optional.empty());
 
             // when - then
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.findByUsername(username));
@@ -89,7 +89,7 @@ public class UserServiceUnitTest {
             given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
 
             // when
-            User foundUser = userService.findByUsername(email);
+            User foundUser = userService.findByEmail(email);
 
             // then
             assertNotNull(foundUser, "사용자가 올바르게 찾아지지 않았습니다.");
@@ -105,7 +105,7 @@ public class UserServiceUnitTest {
             // given
             User user = new User(username, password, name, email, userInfo, status, LocalDateTime.now());
 
-            given(userRepository.findByEmail(email)).willReturn(Optional.of(null));
+            given(userRepository.findByEmail(email)).willReturn(Optional.empty());
 
             // when - then
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.findByEmail(email));
