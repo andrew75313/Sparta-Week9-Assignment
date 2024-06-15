@@ -11,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -24,9 +23,6 @@ public class UserServiceUnitTest {
 
     @Mock
     private UserRepository userRepository;
-
-    @Mock
-    private PasswordEncoder passwordEncoder;
 
     // 실제 UserService 를 사용하기 위해
     @InjectMocks
@@ -66,8 +62,6 @@ public class UserServiceUnitTest {
         @DisplayName("Username으로 사용자 찾기 - 실패")
         void testFindByUsernameNoUserFail() {
             // given
-            User user = new User(username, password, name, email, userInfo, status, LocalDateTime.now());
-
             given(userRepository.findByUsername(username)).willReturn(Optional.empty());
 
             // when - then
@@ -103,8 +97,6 @@ public class UserServiceUnitTest {
         @DisplayName("Email으로 사용자 찾기 - 실패")
         void testFindByEmailNoUserFail() {
             // given
-            User user = new User(username, password, name, email, userInfo, status, LocalDateTime.now());
-
             given(userRepository.findByEmail(email)).willReturn(Optional.empty());
 
             // when - then
