@@ -31,20 +31,21 @@ public class FeedServiceUnitTest {
     @InjectMocks
     FeedService feedService;
 
+    String contents = "Test Feed";
+    String username = "spartaclub";
+    String password = "Password123!";
+    String name = "Sparta Club";
+    String email = "sparta@email.com";
+    String userInfo = "My name is Sparta Club.";
+    Status status = Status.ACTIVATE;
+
+    FeedReqDto feedReqDto;
+    User user;
+
+
     @Nested
     @DisplayName("게시글 찾기")
     class FindFeedTest {
-
-        String contents = "Test Feed";
-        String username = "spartaclub";
-        String password = "Password123!";
-        String name = "Sparta Club";
-        String email = "sparta@email.com";
-        String userInfo = "My name is Sparta Club.";
-        Status status = Status.ACTIVATE;
-
-        FeedReqDto feedReqDto;
-        User user;
 
         @BeforeEach
         void beforeFindFeedTest() throws NoSuchFieldException, IllegalAccessException {
@@ -86,5 +87,51 @@ public class FeedServiceUnitTest {
             assertEquals("해당 요소가 존재하지 않습니다.", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
         }
 
+    }
+
+    @Nested
+    @DisplayName("좋아요 기능")
+    class LikeTest {
+
+        @BeforeEach
+        void beforeFindFeedTest() throws NoSuchFieldException, IllegalAccessException {
+            feedReqDto = new FeedReqDto();
+            Field field = FeedReqDto.class.getDeclaredField("contents");
+            field.setAccessible(true);
+            field.set(feedReqDto, contents);
+
+            user = new User(username, password, name, email, userInfo, status, LocalDateTime.now());
+        }
+
+        @Test
+        @DisplayName("게시글 좋아요 추가")
+        void testIncreaseFeedLikes() {
+            // given
+            Feed feed = new Feed(feedReqDto, user);
+
+            given(feedRepository.findById(feed.getId())).willReturn(Optional.of(feed));
+
+            // when
+            feedService.increaseFeedLikes(feed.getId());
+
+            // then
+            assertEquals(1L, feed.getLikes(), "좋아요가 올바르게 추가되지 않았습니다!");
+        }
+
+
+        @Test
+        @DisplayName("게시글 좋아요 삭제")
+        void testDecreaseFeedLikes() {
+            // given
+            Feed feed = new Feed(feedReqDto, user);
+
+            given(feedRepository.findById(feed.getId())).willReturn(Optional.of(feed));
+
+            // when
+            feedService.decreaseFeedLikes(feed.getId());
+
+            // then
+            assertEquals(-1L, feed.getLikes(), "좋아요가 올바르게 삭제되지 않았습니다!");
+        }
     }
 }
