@@ -4,6 +4,7 @@ import com.sparta.newsfeedteamproject.dto.MessageResDto;
 import com.sparta.newsfeedteamproject.dto.feed.FeedReqDto;
 import com.sparta.newsfeedteamproject.dto.feed.FeedResDto;
 import com.sparta.newsfeedteamproject.entity.Feed;
+import com.sparta.newsfeedteamproject.entity.Status;
 import com.sparta.newsfeedteamproject.entity.User;
 import com.sparta.newsfeedteamproject.repository.FeedRepository;
 import com.sparta.newsfeedteamproject.repository.UserRepository;
@@ -13,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,32 +32,58 @@ public class FeedServiceIntegrationTest {
     FeedRepository feedRepository;
 
     User user;
-    Feed createdFeed = null;
-    String feedContents = "";
+    Feed createdFeed;
+    String feedContents;
     Long feedId;
+
+    @BeforeAll
+    void setUp() {
+        user = new User("spartaclub",
+                "Password123!",
+                "Sparta Club",
+                "sparta@email.com",
+                "My name is Sparta Club.",
+                Status.ACTIVATE,
+                LocalDateTime.now());
+
+        userRepository.save(user);
+    }
+
+    @AfterAll
+    void tearDown() {
+        userRepository.delete(user);
+    }
+
+    private Feed setFeed(String contents) throws NoSuchFieldException, IllegalAccessException {
+        FeedReqDto feedReqDto = new FeedReqDto();
+
+        Field contentsField = FeedReqDto.class.getDeclaredField("contents");
+        contentsField.setAccessible(true);
+        contentsField.set(feedReqDto, contents);
+
+        Feed feed = new Feed(feedReqDto, user);
+
+        return feed;
+    }
 
 
     @Test
-    @Order(1)
+    @Transactional
     @DisplayName("게시글 등록")
     void testCreatedFeed() throws NoSuchFieldException, IllegalAccessException {
         // given
         String contents = "Test Feed";
 
         FeedReqDto feedReqDto = new FeedReqDto();
-        Field field = FeedReqDto.class.getDeclaredField("contents");
-        field.setAccessible(true);
-        field.set(feedReqDto, contents);
-
-        user = userRepository.findById(1L).orElse(null);
+        Field contentsField = FeedReqDto.class.getDeclaredField("contents");
+        contentsField.setAccessible(true);
+        contentsField.set(feedReqDto, contents);
 
         // when
         MessageResDto<FeedResDto> messageResDto = feedService.createFeed(feedReqDto, user);
 
         // then
         assertEquals(contents, messageResDto.getData().getContents(), "feed 내용이 올바르게 생성되지 않았습니다.");
-
-        createdFeed = new Feed(feedReqDto, user);
     }
 
     @Nested
@@ -83,7 +111,6 @@ public class FeedServiceIntegrationTest {
             // then
             assertEquals(contents, messageResDto.getData().getContents(), "feed 내용이 올바르게 수정되지 않았습니다.");
 
-            feedContents = contents;
         }
 
         @Test
@@ -130,7 +157,6 @@ public class FeedServiceIntegrationTest {
         assertEquals(createdFeedId, foundFeedResDto.getId(), "feed Id가 올바르게 조회되지 않았습니다.");
         assertEquals(this.feedContents, foundFeedResDto.getContents(), "feed 내용이 올바르게 조회되지 않았습니다.");
 
-        feedId = createdFeedId;
     }
 
     @Test
