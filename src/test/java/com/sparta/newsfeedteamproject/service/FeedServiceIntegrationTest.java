@@ -53,7 +53,7 @@ public class FeedServiceIntegrationTest {
         MessageResDto<FeedResDto> messageResDto = feedService.createFeed(feedReqDto, user);
 
         // then
-        assertEquals(contents, messageResDto.getData(), "feed 내용이 올바르게 생성되지 않았습니다.");
+        assertEquals(contents, messageResDto.getData().getContents(), "feed 내용이 올바르게 생성되지 않았습니다.");
 
         createdFeed = new Feed(feedReqDto, user);
     }
@@ -81,7 +81,7 @@ public class FeedServiceIntegrationTest {
             MessageResDto<FeedResDto> messageResDto = feedService.updateFeed(feedId, feedReqDto, user);
 
             // then
-            assertEquals(contents, messageResDto.getData(), "feed 내용이 올바르게 수정되지 않았습니다.");
+            assertEquals(contents, messageResDto.getData().getContents(), "feed 내용이 올바르게 수정되지 않았습니다.");
 
             feedContents = contents;
         }
