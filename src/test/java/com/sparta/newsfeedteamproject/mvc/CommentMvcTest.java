@@ -32,6 +32,8 @@ import java.lang.reflect.Field;
 import java.security.Principal;
 import java.time.LocalDateTime;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -86,16 +88,26 @@ public class CommentMvcTest {
 
     private Feed mockFeedSetup(Long feedId) throws NoSuchFieldException, IllegalAccessException {
         String contents = "Test";
-
+        Long likes = 0L;
         Feed feed = new Feed();
 
-        Field idField = FeedReqDto.class.getDeclaredField("id");
+        Field idField = Feed.class.getDeclaredField("id");
         idField.setAccessible(true);
         idField.set(feed, feedId);
 
-        Field contentsField = FeedReqDto.class.getDeclaredField("contents");
+        User user = mockUserSetup().getUser();
+
+        Field userField = Feed.class.getDeclaredField("user");
+        userField.setAccessible(true);
+        userField.set(feed, user);
+
+        Field contentsField = Feed.class.getDeclaredField("contents");
         contentsField.setAccessible(true);
         contentsField.set(feed, contents);
+
+        Field likesField = Feed.class.getDeclaredField("likes");
+        likesField.setAccessible(true);
+        likesField.set(feed, likes);
 
         return feed;
     }
@@ -113,15 +125,26 @@ public class CommentMvcTest {
 
     private CommentResDto mockCommentResDtoSetup(Long commentId) throws NoSuchFieldException, IllegalAccessException {
         String contents = "Test";
+        Long likes = 0L;
         Comment comment = new Comment();
 
         Field idField = Comment.class.getDeclaredField("id");
         idField.setAccessible(true);
         idField.set(comment, commentId);
 
+        User user = mockUserSetup().getUser();
+
+        Field userField = Comment.class.getDeclaredField("user");
+        userField.setAccessible(true);
+        userField.set(comment, user);
+
         Field contentsField = Comment.class.getDeclaredField("contents");
         contentsField.setAccessible(true);
         contentsField.set(comment, contents);
+
+        Field likesField = Comment.class.getDeclaredField("likes");
+        likesField.setAccessible(true);
+        likesField.set(comment, likes);
 
         CommentResDto commentResDto = new CommentResDto(comment);
 
@@ -143,10 +166,10 @@ public class CommentMvcTest {
         String postInfo = objectMapper.writeValueAsString(commentReqDto);
 
         // when
-        given(commentService.createComment(comment.getId(), commentReqDto, user)).willReturn(response);
+        given(commentService.createComment(anyLong(), any(CommentReqDto.class), any(User.class))).willReturn(response);
 
         // then
-        mvc.perform(post("/{feedId}/comments", feedId)
+        mvc.perform(post("/feeds/{feedId}/comments", feedId)
                         .content(postInfo)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
