@@ -249,12 +249,13 @@ public class CommentMvcTest {
         MessageResDto<CommentDelResDto> response = new MessageResDto<>(200, "댓글 삭제가 완료되었습니다!", commentDelResDto);
 
         // when
-        given(commentService.deleteComment(feedId, commentId, user)).willReturn(response);
+        given(commentService.deleteComment(anyLong(), anyLong(), any(User.class))).willReturn(response);
 
         // then
-        mvc.perform(delete("/{feedId}/comments/{commentId}", feedId, commentId)
+        mvc.perform(delete("/feeds/{feedId}/comments/{commentId}", feedId, commentId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
+                        .principal(mockPrincipal)
                 )
                 .andExpect(status().isOk())
                 .andDo(print());
