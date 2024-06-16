@@ -208,21 +208,27 @@ public class CommentMvcTest {
     void testUpdateComment() throws Exception {
         // given
         Long feedId = 1L;
+        Long commentId = 1L;
         CommentReqDto commentReqDto = mockCommentReqDtoSetup();
-        User user = mockUserSetup().getUser();
+
         Feed feed = mockFeedSetup(feedId);
+        User user = mockUserSetup().getUser();
         Comment comment = new Comment(commentReqDto, feed, user, 0L);
-        Long commentId = comment.getId();
+
+        Field idField = Comment.class.getDeclaredField("id");
+        idField.setAccessible(true);
+        idField.set(comment, commentId);
+
         CommentResDto commentResDto = new CommentResDto(comment);
         MessageResDto<CommentResDto> response = new MessageResDto<>(200, "댓글 수정이 완료되었습니다!", commentResDto);
 
         String putInfo = objectMapper.writeValueAsString(commentReqDto);
 
         // when
-        given(commentService.updateComment(feedId, commentId, commentReqDto, user)).willReturn(response);
+        given(commentService.updateComment(anyLong(), anyLong(), any(CommentReqDto.class), any(User.class))).willReturn(response);
 
         // then
-        mvc.perform(put("/{feedId}/comments/{commentId}", feedId, commentId)
+        mvc.perform(put("/feeds/{feedId}/comments/{commentId}", feedId, commentId)
                         .content(putInfo)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
