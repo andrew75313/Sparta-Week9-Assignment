@@ -128,7 +128,7 @@ public class FeedServiceIntegrationTest {
 
         assertNotNull(foundFeedResDto, "feed가 올바르게 조회되지 않았습니다.");
         assertEquals(createdFeedId, foundFeedResDto.getId(), "feed Id가 올바르게 조회되지 않았습니다.");
-        assertEquals(this.createdFeed.getContents(), foundFeedResDto.getContents(), "feed 내용이 올바르게 조회되지 않았습니다.");
+        assertEquals(this.feedContents, foundFeedResDto.getContents(), "feed 내용이 올바르게 조회되지 않았습니다.");
 
         feedId = createdFeedId;
     }
