@@ -34,9 +34,6 @@ public class FeedServiceIntegrationTest {
     FeedRepository feedRepository;
 
     User user;
-    Feed createdFeed;
-    String feedContents;
-    Long feedId;
 
     @BeforeEach
     void setUp() {
@@ -184,30 +181,33 @@ public class FeedServiceIntegrationTest {
     @DisplayName("게시글 삭제")
     class DeleteFeedTest {
         @Test
-        @Order(6)
         @DisplayName("게시글 삭제 - 성공")
-        void deleteFeed() {
+        @Transactional
+        void deleteFeed() throws NoSuchFieldException, IllegalAccessException {
             // given
-            Long feedId = createdFeed.getId();
-            user = userRepository.findById(1L).orElse(null);
+            Feed testFeed = setFeed("Test Feed");
+            feedRepository.save(testFeed);
 
             // when
-            MessageResDto<FeedResDto> messageResDto = feedService.deleteFeed(feedId, user);
+            MessageResDto<FeedResDto> messageResDto = feedService.deleteFeed(testFeed.getId(), user);
 
             // then
             assertEquals("게시물 삭제가 완료되었습니다!", messageResDto.getMessage(), "feed가 올바르게 삭제되지 않았습니다.");
         }
 
         @Test
-        @Order(7)
         @DisplayName("게시글 삭제 - 실패")
-        void deleteFeedFail() {
+        @Transactional
+        void deleteFeedFail() throws NoSuchFieldException, IllegalAccessException {
             // given
-            Long feedId = createdFeed.getId();
-            user = userRepository.findById(2L).orElse(null);
+            Feed testFeed = setFeed("Test Feed");
+            feedRepository.save(testFeed);
+
+            User differentUser = new User();
+            user.setId(user.getId()+1L);
 
             // when - then
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> feedService.deleteFeed(feedId, user));
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> feedService.deleteFeed(testFeed.getId(), differentUser));
             assertEquals("해당 작업은 작성자만 수정/삭제 할 수 있습니다!", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
         }
     }
