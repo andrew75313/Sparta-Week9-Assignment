@@ -203,11 +203,8 @@ public class UserServiceIntegrationTest {
         @DisplayName("로그아웃 - 성공")
         void testLogout() {
             // given
-            User user = new User();
-            user.setId(1L);
-            user.setRefreshToken("refreshtoken");
-
-            userRepository.save(user);
+            userService.signup(signupReqDto);
+            User user = userService.findByUsername(username);
 
             Long userId = user.getId();
 
@@ -224,18 +221,24 @@ public class UserServiceIntegrationTest {
         @Test
         @Transactional
         @DisplayName("로그아웃 - 사용자 ID 불일치 실패")
-        void testLogoutUnmatchedUseridFail() {
+        void testLogoutUnmatchedUseridFail() throws NoSuchFieldException, IllegalAccessException {
             // given
-            User user = new User();
-            user.setId(1L);
-            user.setRefreshToken("refreshtoken");
-
-            User differentUser = new User();
-            differentUser.setId(1000L);
-
-            userRepository.save(user);
+            userService.signup(signupReqDto);
+            User user = userService.findByUsername(username);
 
             Long userId = user.getId();
+
+            String username = "spartaclub2";
+            String email = "sparta2@email.com";
+            User differentUser = new User(username,
+                    passwordEncoder.encode(password),
+                    name,
+                    email,
+                    userInfo,
+                    Status.ACTIVATE,
+                    LocalDateTime.now());
+
+            userRepository.save(differentUser);
 
             UserDetailsImpl userDetails = new UserDetailsImpl(differentUser);
 
