@@ -10,6 +10,7 @@ import com.sparta.newsfeedteamproject.repository.CommentRepository;
 import com.sparta.newsfeedteamproject.repository.FeedRepository;
 import com.sparta.newsfeedteamproject.repository.LikeRepository;
 import com.sparta.newsfeedteamproject.repository.UserRepository;
+import jakarta.transaction.TransactionScoped;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -153,20 +154,21 @@ public class CommentServiceIntegrationTest {
     }
 
     @Test
-    @Order(7)
     @DisplayName("단건 댓글 조회")
-    void testGetComment() {
+    @Transactional
+    void testGetComment() throws NoSuchFieldException, IllegalAccessException {
         // given
-        Long commentId = this.createdComment.getId();
-        Long feedId = this.createdComment.getFeed().getId();
+        String contents = "Test Comment";
+        Comment testComment = setComment(contents);
+        commentRepository.save(testComment);
 
         // when
-        MessageResDto<CommentResDto> messageResDto = commentService.getComment(feedId, commentId);
+        MessageResDto<CommentResDto> messageResDto = commentService.getComment(feed.getId(), testComment.getId());
 
         // then
         CommentResDto foundCommentResDto = messageResDto.getData();
 
-        assertEquals(this.commentContents, foundCommentResDto.getContents(), "조회할 feed가 올바르게 조회되지 않았습니다.");
+        assertEquals(contents, foundCommentResDto.getContents(), "조회할 feed가 올바르게 조회되지 않았습니다.");
     }
 
     @Test
