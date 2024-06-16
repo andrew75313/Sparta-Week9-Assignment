@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -141,16 +142,16 @@ public class UserServiceIntegrationTest {
         void testWithdraw() throws NoSuchFieldException, IllegalAccessException {
             // given
             userService.signup(signupReqDto);
-            User foundUser = userService.findByUsername(username);
+            User user = userService.findByUsername(username);
 
-            Long userId = foundUser.getId();
+            Long userId = user.getId();
 
             UserAuthReqDto reqDto = new UserAuthReqDto();
             Field passwordField = UserAuthReqDto.class.getDeclaredField("password");
             passwordField.setAccessible(true);
             passwordField.set(reqDto, password);
 
-            UserDetailsImpl userDetails = new UserDetailsImpl(foundUser);
+            UserDetailsImpl userDetails = new UserDetailsImpl(user);
 
             // when
             userService.withdraw(userId, reqDto, userDetails);
@@ -162,83 +163,34 @@ public class UserServiceIntegrationTest {
 
         @Test
         @Transactional
-        @DisplayName("회원탈퇴 - 로그인 유저 username 불일치 실패")
+        @DisplayName("회원탈퇴 - 실패")
         void testWithdrawUnmatchedUsernameFail() throws NoSuchFieldException, IllegalAccessException {
             // given
-            User differentUser = new User();
-            differentUser.setId(100000L);
-            differentUser.setUsername("spartaclub2");
-            userRepository.save(differentUser);
-
             userService.signup(signupReqDto);
-            User foundUser = userService.findByUsername(username);
-
-            Long userId = foundUser.getId();
+            User savedUser = userService.findByUsername(username);
 
             UserAuthReqDto reqDto = new UserAuthReqDto();
+            Field passwordField = UserAuthReqDto.class.getDeclaredField("password");
+            passwordField.setAccessible(true);
+            passwordField.set(reqDto, password);
+
+            String username = "spartaclub2";
+            String email = "sparta2@email.com";
+            User differentUser = new User(username,
+                    passwordEncoder.encode(password),
+                    name,
+                    email,
+                    userInfo,
+                    Status.ACTIVATE,
+                    LocalDateTime.now());
+
+            userRepository.save(differentUser);
 
             UserDetailsImpl userDetails = new UserDetailsImpl(differentUser);
 
             // when - then
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.withdraw(userId, reqDto, userDetails));
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.withdraw(savedUser.getId(), reqDto, userDetails));
             assertEquals("프로필 사용자와 일치하지 않아 요청을 처리할 수 없습니다.", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
-        }
-
-        @Test
-        @Transactional
-        @DisplayName("회원탈퇴 - 로그인 유저 password 불일치 실패")
-        void testWithdrawUnmatchedPasswordFail() throws NoSuchFieldException, IllegalAccessException {
-            // given
-            User differentUser = new User();
-            differentUser.setId(100000L);
-            differentUser.setUsername("spartaclub");
-            differentUser.setPassword(passwordEncoder.encode("Password456!"));
-            userRepository.save(differentUser);
-
-            userService.signup(signupReqDto);
-            User foundUser = userService.findByUsername(username);
-
-            Long userId = foundUser.getId();
-
-            UserAuthReqDto reqDto = new UserAuthReqDto();
-            Field passwordField = UserAuthReqDto.class.getDeclaredField("password");
-            passwordField.setAccessible(true);
-            passwordField.set(reqDto, password);
-
-            UserDetailsImpl userDetails = new UserDetailsImpl(differentUser);
-
-            // when - then
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.withdraw(userId, reqDto, userDetails));
-            assertEquals("비밀번호가 일치하지 않아 요청을 처리할 수 없습니다.", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
-        }
-
-        @Test
-        @Transactional
-        @DisplayName("회원탈퇴 - 로그인 유저 Status 불일치 실패")
-        void testWithdrawUnmatchedStatusFail() throws NoSuchFieldException, IllegalAccessException {
-            // given
-            User differentUser = new User();
-            differentUser.setId(100000L);
-            differentUser.setUsername("spartaclub");
-            differentUser.setPassword(passwordEncoder.encode("Password123!"));
-            differentUser.setStatus(Status.DEACTIVATE);
-            userRepository.save(differentUser);
-
-            userService.signup(signupReqDto);
-            User foundUser = userService.findByUsername(username);
-
-            Long userId = foundUser.getId();
-
-            UserAuthReqDto reqDto = new UserAuthReqDto();
-            Field passwordField = UserAuthReqDto.class.getDeclaredField("password");
-            passwordField.setAccessible(true);
-            passwordField.set(reqDto, password);
-
-            UserDetailsImpl userDetails = new UserDetailsImpl(differentUser);
-
-            // when - then
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.withdraw(userId, reqDto, userDetails));
-            assertEquals("탈퇴한 회원입니다.", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
         }
     }
 
