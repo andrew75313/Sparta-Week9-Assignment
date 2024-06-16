@@ -176,7 +176,7 @@ public class FeedMvcTest {
         MessageResDto<FeedResDto> response = new MessageResDto<>(200, "게시물 조회가 완료되었습니다!", feedResDto);
 
         // when
-        given(feedService.getFeed(feedId)).willReturn(response);
+        given(feedService.getFeed(anyLong())).willReturn(response);
 
         // then
         mvc.perform(get("/feeds/{feedId}", feedId))
@@ -199,7 +199,7 @@ public class FeedMvcTest {
         String postInfo = objectMapper.writeValueAsString(feedReqDto);
 
         // when
-        given(feedService.createFeed(feedReqDto, user)).willReturn(response);
+        given(feedService.createFeed(any(FeedReqDto.class), any(User.class))).willReturn(response);
 
         // then
         mvc.perform(post("/feeds")
@@ -226,7 +226,7 @@ public class FeedMvcTest {
         String putInfo = objectMapper.writeValueAsString(feedReqDto);
 
         // when
-        given(feedService.updateFeed(feedId, feedReqDto, user)).willReturn(response);
+        given(feedService.updateFeed(anyLong(), any(FeedReqDto.class), any(User.class))).willReturn(response);
 
         // then
         mvc.perform(put("/feeds/{feedId}", feedId)
@@ -248,7 +248,7 @@ public class FeedMvcTest {
         MessageResDto<FeedResDto> response = new MessageResDto<>(200, "게시물 삭제가 완료되었습니다!", null);
 
         // when
-        given(feedService.deleteFeed(feedId, user)).willReturn(response);
+        given(feedService.deleteFeed(anyLong(), any(User.class))).willReturn(response);
 
         // then
         mvc.perform(delete("/feeds/{feedId}", feedId)
