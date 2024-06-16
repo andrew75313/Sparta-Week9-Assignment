@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -138,31 +139,30 @@ public class FeedServiceIntegrationTest {
     }
 
     @Test
-    @Order(4)
     @DisplayName("모든 게시글 조회")
-    void testGetAllFeeds() {
+    @Transactional
+    void testGetAllFeeds() throws NoSuchFieldException, IllegalAccessException {
         // given
-        user = userRepository.findById(1L).orElse(null);
+        Feed firstTestFeed = setFeed("Test Feed 1");
+        feedRepository.save(firstTestFeed);
+
+        Feed secondTestFeed = setFeed("Test Feed 2");
+        feedRepository.save(secondTestFeed);
 
         // when
         MessageResDto<List<FeedResDto>> messageResDto = feedService.getAllFeeds(0, "createdAt", null, null);
 
         // then
-        Long createdFeedId = this.createdFeed.getId();
+        List<FeedResDto> foundFeedResDtoList = messageResDto.getData().stream().collect(Collectors.toList());
 
-        FeedResDto foundFeedResDto = messageResDto.getData().stream()
-                .filter(feed -> feed.getId().equals(createdFeed))
-                .findFirst()
-                .orElse(null);
-
-        assertNotNull(foundFeedResDto, "feed가 올바르게 조회되지 않았습니다.");
-        assertEquals(createdFeedId, foundFeedResDto.getId(), "feed Id가 올바르게 조회되지 않았습니다.");
-        assertEquals(this.feedContents, foundFeedResDto.getContents(), "feed 내용이 올바르게 조회되지 않았습니다.");
-
+        assertNotNull(foundFeedResDtoList, "모든 feed가 올바르게 조회되지 않았습니다.");
+        assertEquals(firstTestFeed.getId(), foundFeedResDtoList.get(1).getId(), "feed Id가 올바르게 조회되지 않았습니다.");
+        assertEquals(secondTestFeed.getId(), foundFeedResDtoList.get(0).getId(), "feed Id가 올바르게 조회되지 않았습니다.");
+        assertEquals(firstTestFeed.getContents(), foundFeedResDtoList.get(1).getContents(), "feed 내용이 올바르게 조회되지 않았습니다.");
+        assertEquals(secondTestFeed.getContents(), foundFeedResDtoList.get(0).getContents(), "feed 내용이 올바르게 조회되지 않았습니다.");
     }
 
     @Test
-    @Order(5)
     @DisplayName("단건 게시글 조회")
     void testGetFeed() {
         // when
