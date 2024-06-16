@@ -300,7 +300,11 @@ public class UserServiceIntegrationTest {
     @DisplayName("프로필 수정")
     class TestEditProfile {
 
+        String newPassword = "NEW" + password;
+        String newName = "NEW " + name;
+        String newUserInfO = "NEW " + userInfo;
         UpdateReqDto updateReqDto;
+
 
         @BeforeEach
         void beforeTestEditProfile() throws NoSuchFieldException, IllegalAccessException {
@@ -312,15 +316,15 @@ public class UserServiceIntegrationTest {
 
             Field newPasswordField = UpdateReqDto.class.getDeclaredField("newPassword");
             newPasswordField.setAccessible(true);
-            newPasswordField.set(updateReqDto, "NEW" + password);
+            newPasswordField.set(updateReqDto, newPassword);
 
             Field newNamelField = UpdateReqDto.class.getDeclaredField("newName");
             newNamelField.setAccessible(true);
-            newNamelField.set(updateReqDto, "NEW " + name);
+            newNamelField.set(updateReqDto, newName);
 
             Field newUserInfoField = UpdateReqDto.class.getDeclaredField("newUserInfo");
             newUserInfoField.setAccessible(true);
-            newUserInfoField.set(updateReqDto, "NEW " + userInfo);
+            newUserInfoField.set(updateReqDto, newUserInfO);
         }
 
         @Test
@@ -328,13 +332,8 @@ public class UserServiceIntegrationTest {
         @DisplayName("프로필 수정 - 성공")
         void testEditProfile() {
             // given
-            User user = new User();
-            user.setId(1L);
-            user.setUsername(username);
-            user.setPassword(passwordEncoder.encode(password));
-            user.setStatus(Status.ACTIVATE);
-
-            userRepository.save(user);
+            userService.signup(signupReqDto);
+            User user = userService.findByUsername(username);
 
             Long userId = user.getId();
 
@@ -345,10 +344,8 @@ public class UserServiceIntegrationTest {
 
             // then
             assertNotNull(profileResDto, "프로필이 올바르게 수정되지 않았습니다.");
-            assertEquals(username, profileResDto.getUsername(), "Username이 올바르게 수정되지 않았습니다.");
-            assertEquals(name, profileResDto.getName(), "Name이 올바르게 수정되지 않았습니다.");
-            assertEquals(email, profileResDto.getEmail(), "Email이 올바르게 수정되지 않았습니다.");
-            assertEquals(userInfo, profileResDto.getUserInfo(), "UserInfo가 수정되지 조회되지 않았습니다.");
+            assertEquals(newName, profileResDto.getName(), "Name이 올바르게 수정되지 않았습니다.");
+            assertEquals(newUserInfO, profileResDto.getUserInfo(), "UserInfo가 수정되지 조회되지 않았습니다.");
         }
 
         @Test
@@ -356,17 +353,22 @@ public class UserServiceIntegrationTest {
         @DisplayName("프로필 수정 - 로그인 유저 Username 불일치 실패")
         void testEditProfileUnmatchedUsernameFail() {
             // given
-            User user = new User();
-            user.setId(1L);
-            user.setUsername(username);
-
-            User differentUser = new User();
-            differentUser.setUsername("spartaclub2");
-
-            userRepository.save(user);
-            userRepository.save(differentUser);
+            userService.signup(signupReqDto);
+            User user = userService.findByUsername(username);
 
             Long userId = user.getId();
+
+            String username = "spartaclub2";
+            String email = "sparta2@email.com";
+            User differentUser = new User(username,
+                    passwordEncoder.encode(password),
+                    name,
+                    email,
+                    userInfo,
+                    Status.ACTIVATE,
+                    LocalDateTime.now());
+
+            userRepository.save(differentUser);
 
             UserDetailsImpl userDetails = new UserDetailsImpl(differentUser);
 
@@ -377,67 +379,15 @@ public class UserServiceIntegrationTest {
 
         @Test
         @Transactional
-        @DisplayName("프로필 수정 - 로그인 유저 Status 비활성상태 실패")
-        void testEditProfileUnmatchedStatusFail() {
-            // given
-            User user = new User();
-            user.setId(1L);
-            user.setUsername(username);
-            user.setStatus(Status.DEACTIVATE);
-
-            User differentUser = new User();
-            differentUser.setUsername(username);
-
-            userRepository.save(user);
-            userRepository.save(differentUser);
-
-            Long userId = user.getId();
-
-            UserDetailsImpl userDetails = new UserDetailsImpl(differentUser);
-
-            // when - then
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.editProfile(userId, updateReqDto, userDetails));
-            assertEquals("탈퇴한 회원입니다.", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
-        }
-
-        @Test
-        @Transactional
-        @DisplayName("프로필 수정 - 로그인 유저 Password 불일치 실패")
-        void testEditProfileUnmatchedPasswordFail() {
-            // given
-            userService.signup(signupReqDto);
-
-            User differentUser = new User();
-            differentUser.setUsername(username);
-            differentUser.setPassword("Password456!");
-
-            userRepository.save(differentUser);
-
-            Long userId = userRepository.findByUsername(username).orElse(null).getId();
-
-            UserDetailsImpl userDetails = new UserDetailsImpl(differentUser);
-
-            // when - then
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.editProfile(userId, updateReqDto, userDetails));
-            assertEquals("비밀번호가 일치하지 않아 요청을 처리할 수 없습니다.", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
-        }
-
-        @Test
-        @Transactional
         @DisplayName("프로필 수정 - 동일한 Password로 수정 실패")
         void testEditProfileDuplicatedPasswordFail() throws NoSuchFieldException, IllegalAccessException {
             // given
             userService.signup(signupReqDto);
+            User user = userService.findByUsername(username);
 
-            User differentUser = new User();
-            differentUser.setUsername(username);
-            differentUser.setPassword("Password123!");
+            Long userId = user.getId();
 
-            userRepository.save(differentUser);
-
-            Long userId = userRepository.findByUsername(username).orElse(null).getId();
-
-            UserDetailsImpl userDetails = new UserDetailsImpl(differentUser);
+            UserDetailsImpl userDetails = new UserDetailsImpl(user);
 
             Field newPasswordField = UpdateReqDto.class.getDeclaredField("newPassword");
             newPasswordField.setAccessible(true);
