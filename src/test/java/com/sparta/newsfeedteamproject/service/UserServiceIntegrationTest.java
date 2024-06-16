@@ -257,15 +257,8 @@ public class UserServiceIntegrationTest {
         @DisplayName("프로필 조회 - 성공")
         void testGetProfile() {
             // given
-            User user = new User();
-            user.setId(1L);
-            user.setUsername(username);
-            user.setName(name);
-            user.setEmail(email);
-            user.setUserInfo(userInfo);
-            user.setStatus(Status.ACTIVATE);
-
-            userRepository.save(user);
+            userService.signup(signupReqDto);
+            User user = userService.findByUsername(username);
 
             Long userId = user.getId();
 
@@ -285,9 +278,13 @@ public class UserServiceIntegrationTest {
         @DisplayName("프로필 조회 - 사용자 Status 비활성화 상태 실패")
         void testGetProfileUnmatchedStatusFail() {
             // given
-            User user = new User();
-            user.setId(1L);
-            user.setStatus(Status.DEACTIVATE);
+            User user = new User(username,
+                    passwordEncoder.encode(password),
+                    name,
+                    email,
+                    userInfo,
+                    Status.DEACTIVATE,
+                    LocalDateTime.now());
 
             userRepository.save(user);
 
