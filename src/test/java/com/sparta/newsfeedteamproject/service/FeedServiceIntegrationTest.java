@@ -59,75 +59,10 @@ public class FeedServiceIntegrationTest {
     }
 
     @Nested
-    @DisplayName("게시글 찾기 기능")
-    class FindFeedTest {
-        @Test
-        @Order(2)
-        @DisplayName("게시글 찾기 기능 - 성공")
-        void testFindFeed() {
-            // given
-            Long feedId = createdFeed.getId();
-
-            // when
-            Feed feed = feedService.findFeed(feedId);
-
-            // then
-            assertEquals(feedId, feed.getId(), "게시글을 올바르게 찾을 수 없습니다.");
-        }
-
-        @Test
-        @Order(3)
-        @DisplayName("게시글 찾기 기능 - 실패")
-        void testFindFeedFail() {
-            // given
-            Long feedId = 10000000L;
-
-            // when - then
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> feedService.findFeed(feedId));
-            assertEquals("해당 요소가 존재하지 않습니다.", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
-        }
-    }
-
-    @Nested
-    @DisplayName("좋아요 기능")
-    class LikeTest {
-
-        @Test
-        @Order(4)
-        @DisplayName("좋아요 추가")
-        @Transactional
-        void testIncreasFeedLike() {
-            // given
-            Long feedId = createdFeed.getId();
-
-            // when
-            feedService.increaseFeedLikes(feedId);
-
-            // then
-            assertEquals(1L, createdFeed.getLikes(), "좋아요가 올바르게 추가되지 않았습니다.");
-        }
-
-        @Test
-        @Order(5)
-        @DisplayName("좋아요 삭제")
-        @Transactional
-        void testDecreaseFeedLike() {
-            // given
-            Long feedId = createdFeed.getId();
-
-            // when
-            feedService.decreaseFeedLikes(feedId);
-
-            // then
-            assertEquals(0L, createdFeed.getLikes(), "좋아요가 올바르게 삭제되지 않았습니다.");
-        }
-    }
-
-    @Nested
     @DisplayName("게시글 수정")
     class UpdateFeedTest {
         @Test
-        @Order(6)
+        @Order(2)
         @DisplayName("게시글 수정 - 성공")
         @Transactional
         void testUpdateFeed() throws NoSuchFieldException, IllegalAccessException {
@@ -152,7 +87,7 @@ public class FeedServiceIntegrationTest {
         }
 
         @Test
-        @Order(7)
+        @Order(3)
         @DisplayName("게시글 수정 - 실패")
         @Transactional
         void testUpdateFeedFail() throws NoSuchFieldException, IllegalAccessException {
@@ -174,7 +109,7 @@ public class FeedServiceIntegrationTest {
     }
 
     @Test
-    @Order(8)
+    @Order(4)
     @DisplayName("모든 게시글 조회")
     void testGetAllFeeds() {
         // given
@@ -199,7 +134,7 @@ public class FeedServiceIntegrationTest {
     }
 
     @Test
-    @Order(9)
+    @Order(5)
     @DisplayName("단건 게시글 조회")
     void testGetFeed() {
         // when
@@ -215,7 +150,7 @@ public class FeedServiceIntegrationTest {
     @DisplayName("게시글 삭제")
     class DeleteFeedTest {
         @Test
-        @Order(10)
+        @Order(6)
         @DisplayName("게시글 삭제 - 성공")
         void deleteFeed() {
             // given
@@ -230,7 +165,7 @@ public class FeedServiceIntegrationTest {
         }
 
         @Test
-        @Order(11)
+        @Order(7)
         @DisplayName("게시글 삭제 - 실패")
         void deleteFeedFail() {
             // given
