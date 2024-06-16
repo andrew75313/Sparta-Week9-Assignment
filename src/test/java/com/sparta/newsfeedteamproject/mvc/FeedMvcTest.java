@@ -27,6 +27,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.lang.reflect.Field;
 import java.security.Principal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,17 +73,36 @@ public class FeedMvcTest {
     }
 
     private FeedResDto mockFeedResDtoSetup(Long id) throws NoSuchFieldException, IllegalAccessException {
+
+        // 임의의 FEED 생성
         Long feedId = id;
         String contents = "Test";
+        Long likes = 0L;
         Feed feed = new Feed();
 
         Field idField = Feed.class.getDeclaredField("id");
         idField.setAccessible(true);
         idField.set(feed, feedId);
 
+        User user = new User("spartaclub",
+                "Password123!",
+                "Sparta Club",
+                "sparta@email.com",
+                "My name is Sparta Club.",
+                Status.ACTIVATE,
+                LocalDateTime.now());
+
+        Field userField = Feed.class.getDeclaredField("user");
+        userField.setAccessible(true);
+        userField.set(feed, user);
+
         Field contentsField = Feed.class.getDeclaredField("contents");
         contentsField.setAccessible(true);
         contentsField.set(feed, contents);
+
+        Field likesField = Feed.class.getDeclaredField("likes");
+        likesField.setAccessible(true);
+        likesField.set(feed, likes);
 
         FeedResDto feedResDto = new FeedResDto(feed);
 
@@ -118,6 +138,11 @@ public class FeedMvcTest {
     @DisplayName("모든 게시글 조회")
     void testGetAllFeeds() throws Exception {
         // given
+        int page = 1;
+        String sortBy = "createdAt";
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = LocalDate.now();
+
         List<FeedResDto> feedResDtoList = new ArrayList<>();
         feedResDtoList.add(mockFeedResDtoSetup(1L));
         feedResDtoList.add(mockFeedResDtoSetup(2L));
@@ -126,7 +151,7 @@ public class FeedMvcTest {
         MessageResDto<List<FeedResDto>> response = new MessageResDto<>(200, "게시물 조회가 완료되었습니다!", feedResDtoList);
 
         // when
-        given(feedService.getAllFeeds(any(), any(), any(), any())).willReturn(response);
+        given(feedService.getAllFeeds(page, sortBy, startDate, endDate)).willReturn(response);
 
         // then
         mvc.perform(get("/feeds/all"))
@@ -137,7 +162,7 @@ public class FeedMvcTest {
                 .andExpect(jsonPath("$.data[1].id").value(2L))
                 .andExpect(jsonPath("$.data[1].contents").value("Test"))
                 .andExpect(jsonPath("$.data[2].id").value(3L))
-                .andExpect(jsonPath("$.data[3].contents").value("Test"))
+                .andExpect(jsonPath("$.data[2].contents").value("Test"))
                 .andDo(print());
     }
 
@@ -228,6 +253,7 @@ public class FeedMvcTest {
         mvc.perform(delete("/feeds/{feedId}", feedId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
+                        .principal(mockPrincipal)
                 )
                 .andExpect(status().isOk())
                 .andDo(print());
