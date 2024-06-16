@@ -4,8 +4,10 @@ import com.sparta.newsfeedteamproject.dto.MessageResDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentDelResDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentReqDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentResDto;
+import com.sparta.newsfeedteamproject.dto.feed.FeedReqDto;
 import com.sparta.newsfeedteamproject.entity.*;
 import com.sparta.newsfeedteamproject.repository.CommentRepository;
+import com.sparta.newsfeedteamproject.repository.FeedRepository;
 import com.sparta.newsfeedteamproject.repository.LikeRepository;
 import com.sparta.newsfeedteamproject.repository.UserRepository;
 import org.junit.jupiter.api.*;
@@ -14,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,17 +32,60 @@ public class CommentServiceIntegrationTest {
     @Autowired
     UserRepository userRepository;
     @Autowired
+    FeedRepository feedRepository;
+    @Autowired
     CommentRepository commentRepository;
     @Autowired
     LikeRepository likeRepository;
 
     User user;
+    Feed feed;
     Comment createdComment = null;
     String commentContents = "";
 
+    @BeforeEach
+    void setUp() throws NoSuchFieldException, IllegalAccessException {
+        user = new User("spartaclub",
+                "Password123!",
+                "Sparta Club",
+                "sparta@email.com",
+                "My name is Sparta Club.",
+                Status.ACTIVATE,
+                LocalDateTime.now());
+
+        userRepository.save(user);
+
+        FeedReqDto feedReqDto = new FeedReqDto();
+        Field contentsField = FeedReqDto.class.getDeclaredField("contents");
+        contentsField.setAccessible(true);
+        contentsField.set(feedReqDto, "Test Feed");
+
+        feed = new Feed(feedReqDto, user);
+
+        feedRepository.save(feed);
+    }
+
+    @AfterEach
+    void tearDown() {
+        userRepository.delete(user);
+        feedRepository.delete(feed);
+    }
+
+    private Comment setComment(String contents) throws NoSuchFieldException, IllegalAccessException {
+        CommentReqDto commentReqDto = new CommentReqDto();
+
+        Field contentsField = CommentReqDto.class.getDeclaredField("contents");
+        contentsField.setAccessible(true);
+        contentsField.set(commentReqDto, contents);
+
+        Comment comment = new Comment(commentReqDto, feed, user, 0L);
+
+        return comment;
+    }
+
     @Test
-    @Order(1)
     @DisplayName("댓글 등록")
+    @Transactional
     void testCreatedComment() throws NoSuchFieldException, IllegalAccessException {
         // given
         String contents = "Test Comment";
@@ -49,20 +95,11 @@ public class CommentServiceIntegrationTest {
         contentsField.setAccessible(true);
         contentsField.set(commentReqDto, contents);
 
-        user = userRepository.findById(1L).orElse(null);
-
-        Feed feed = new Feed();
-        Field idField = Feed.class.getDeclaredField("id");
-        idField.setAccessible(true);
-        idField.set(feed, 1L);
-
         // when
-        MessageResDto<CommentResDto> messageResDto = commentService.createComment(1L, commentReqDto, user);
+        MessageResDto<CommentResDto> messageResDto = commentService.createComment(feed.getId(), commentReqDto, user);
 
         // then
-        assertEquals(contents, messageResDto.getData(), "comment 내용이 올바르게 생성되지 않았습니다.");
-
-        createdComment = new Comment(commentReqDto, feed, user, 0L);
+        assertEquals(contents, messageResDto.getData().getContents(), "comment 내용이 올바르게 생성되지 않았습니다.");
     }
 
     @Nested
