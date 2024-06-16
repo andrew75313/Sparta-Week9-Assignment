@@ -8,6 +8,7 @@ import com.sparta.newsfeedteamproject.entity.Status;
 import com.sparta.newsfeedteamproject.entity.User;
 import com.sparta.newsfeedteamproject.repository.FeedRepository;
 import com.sparta.newsfeedteamproject.repository.UserRepository;
+import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,7 +37,7 @@ public class FeedServiceIntegrationTest {
     String feedContents;
     Long feedId;
 
-    @BeforeAll
+    @BeforeEach
     void setUp() {
         user = new User("spartaclub",
                 "Password123!",
@@ -49,7 +50,7 @@ public class FeedServiceIntegrationTest {
         userRepository.save(user);
     }
 
-    @AfterAll
+    @AfterEach
     void tearDown() {
         userRepository.delete(user);
     }
@@ -89,13 +90,15 @@ public class FeedServiceIntegrationTest {
     @Nested
     @DisplayName("게시글 수정")
     class UpdateFeedTest {
+
         @Test
-        @Order(2)
         @DisplayName("게시글 수정 - 성공")
         @Transactional
         void testUpdateFeed() throws NoSuchFieldException, IllegalAccessException {
             // given
-            Long feedId = createdFeed.getId();
+            Feed feed = setFeed("Test Feed");
+            feedRepository.save(feed);
+
             String contents = "UPDATE Test Feed";
 
             FeedReqDto feedReqDto = new FeedReqDto();
@@ -103,23 +106,21 @@ public class FeedServiceIntegrationTest {
             field.setAccessible(true);
             field.set(feedReqDto, contents);
 
-            user = userRepository.findById(1L).orElse(null);
-
             // when
-            MessageResDto<FeedResDto> messageResDto = feedService.updateFeed(feedId, feedReqDto, user);
+            MessageResDto<FeedResDto> messageResDto = feedService.updateFeed(feed.getId(), feedReqDto, user);
 
             // then
             assertEquals(contents, messageResDto.getData().getContents(), "feed 내용이 올바르게 수정되지 않았습니다.");
-
         }
 
         @Test
-        @Order(3)
         @DisplayName("게시글 수정 - 실패")
         @Transactional
         void testUpdateFeedFail() throws NoSuchFieldException, IllegalAccessException {
             // given
-            Long feedId = createdFeed.getId();
+            Feed feed = setFeed("Test Feed");
+            feedRepository.save(feed);
+
             String contents = "UPDATE Test Feed";
 
             FeedReqDto feedReqDto = new FeedReqDto();
@@ -127,10 +128,11 @@ public class FeedServiceIntegrationTest {
             field.setAccessible(true);
             field.set(feedReqDto, contents);
 
-            user = userRepository.findById(2L).orElse(null);
+            User differentUser = new User();
+            user.setId(user.getId()+1L);
 
             // when - then
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> feedService.updateFeed(feedId, feedReqDto, user));
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> feedService.updateFeed(feed.getId(), feedReqDto, differentUser));
             assertEquals("해당 작업은 작성자만 수정/삭제 할 수 있습니다!", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
         }
     }
