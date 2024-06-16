@@ -32,14 +32,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(
         controllers = {FeedController.class},
@@ -84,13 +82,7 @@ public class FeedMvcTest {
         idField.setAccessible(true);
         idField.set(feed, feedId);
 
-        User user = new User("spartaclub",
-                "Password123!",
-                "Sparta Club",
-                "sparta@email.com",
-                "My name is Sparta Club.",
-                Status.ACTIVATE,
-                LocalDateTime.now());
+        User user = mockUserSetup().getUser();
 
         Field userField = Feed.class.getDeclaredField("user");
         userField.setAccessible(true);
@@ -150,12 +142,21 @@ public class FeedMvcTest {
 
         MessageResDto<List<FeedResDto>> response = new MessageResDto<>(200, "게시물 조회가 완료되었습니다!", feedResDtoList);
 
+        String getInfo = objectMapper.writeValueAsString(response);
+
         // when
-        given(feedService.getAllFeeds(page, sortBy, startDate, endDate)).willReturn(response);
+        given(feedService.getAllFeeds(anyInt(), anyString(), any(LocalDate.class), any(LocalDate.class)))
+                .willReturn(response);
 
         // then
-        mvc.perform(get("/feeds/all"))
+        mvc.perform(get("/feeds/all")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("page", String.valueOf(page))
+                        .param("sortBy", sortBy)
+                        .param("startDate", String.valueOf(startDate))
+                        .param("endDate", String.valueOf(endDate)))
                 .andExpect(status().isOk())
+                .andExpect(content().json(getInfo))
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data[0].id").value(1L))
                 .andExpect(jsonPath("$.data[0].contents").value("Test"))
