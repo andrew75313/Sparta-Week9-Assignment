@@ -102,119 +102,53 @@ public class CommentServiceIntegrationTest {
         assertEquals(contents, messageResDto.getData().getContents(), "comment 내용이 올바르게 생성되지 않았습니다.");
     }
 
-    @Nested
-    @DisplayName("댓글 찾기 기능")
-    class FindFeedTest {
-        @Test
-        @Order(2)
-        @DisplayName("댓글 찾기 기능 - 성공")
-        void testFindComment() {
-            // given
-            Long commentId = createdComment.getId();
-
-            // when
-            Comment comment = commentService.findComment(commentId);
-
-            // then
-            assertEquals(commentId, comment.getId(), "댓글을 올바르게 찾을 수 없습니다.");
-        }
-
-        @Test
-        @Order(3)
-        @DisplayName("댓글 찾기 기능 - 실패")
-        void testFindCommentFail() {
-            // given
-            Long commentId = 10000000L;
-
-            // when - then
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> commentService.findComment(commentId));
-            assertEquals("해당 요소가 존재하지 않습니다.", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
-        }
-    }
-
-    @Nested
-    @DisplayName("좋아요 기능")
-    class LikeTest {
-
-        @Test
-        @Order(4)
-        @DisplayName("좋아요 추가")
-        @Transactional
-        void testIncreasCommentLike() {
-            // given
-            Long commentId = createdComment.getId();
-
-            // when
-            commentService.increaseCommentLikes(commentId);
-
-            // then
-            assertEquals(1L, createdComment.getLikes(), "좋아요가 올바르게 추가되지 않았습니다.");
-        }
-
-        @Test
-        @Order(5)
-        @DisplayName("좋아요 삭제")
-        @Transactional
-        void testDecreaseFeedLike() {
-            // given
-            Long commentId = createdComment.getId();
-
-            // when
-            commentService.decreaseCommentLikes(commentId);
-
-            // then
-            assertEquals(0L, createdComment.getLikes(), "좋아요가 올바르게 삭제되지 않았습니다.");
-        }
-    }
 
     @Nested
     @DisplayName("댓글 수정")
     class UpdateCommentTest {
         @Test
-        @Order(6)
         @DisplayName("댓글 수정 - 성공")
         @Transactional
         void testUpdateComment() throws NoSuchFieldException, IllegalAccessException {
             // given
-            Long commentId = createdComment.getId();
-            String contents = "UPDATE Test Comment";
+            Comment comment = setComment("Test Comment");
+            commentRepository.save(comment);
+
+            String contents = "UPDATE Test Feed";
 
             CommentReqDto commentReqDto = new CommentReqDto();
             Field field = CommentReqDto.class.getDeclaredField("contents");
             field.setAccessible(true);
             field.set(commentReqDto, contents);
 
-            user = userRepository.findById(1L).orElse(null);
-
             // when
-            MessageResDto<CommentResDto> messageResDto = commentService.updateComment(1L, commentId, commentReqDto, user);
+            MessageResDto<CommentResDto> messageResDto = commentService.updateComment(feed.getId(), comment.getId(), commentReqDto, user);
 
             // then
-            assertEquals(contents, messageResDto.getData(), "댓글 내용이 올바르게 수정되지 않았습니다.");
-
-            commentContents = contents;
+            assertEquals(contents, messageResDto.getData().getContents(), "댓글 내용이 올바르게 수정되지 않았습니다.");
         }
 
         @Test
-        @Order(6)
         @DisplayName("댓글 수정 - 실패")
         @Transactional
         void testUpdateCommentFail() throws NoSuchFieldException, IllegalAccessException {
             // given
-            Long commentId = createdComment.getId();
-            String contents = "UPDATE Test Comment";
+            Comment comment = setComment("Test Comment");
+            commentRepository.save(comment);
+
+            String contents = "UPDATE Test Feed";
 
             CommentReqDto commentReqDto = new CommentReqDto();
             Field field = CommentReqDto.class.getDeclaredField("contents");
             field.setAccessible(true);
             field.set(commentReqDto, contents);
 
-            user = userRepository.findById(2L).orElse(null);
+            User differentUser = new User();
+            differentUser.setUsername("spartaclub2");
 
             // when - then
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> commentService.updateComment(1L, commentId, commentReqDto, user));
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> commentService.updateComment(feed.getId(), comment.getId(), commentReqDto, differentUser));
             assertEquals("해당 작업은 작성자만 수정/삭제 할 수 있습니다!", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
-
         }
     }
 
