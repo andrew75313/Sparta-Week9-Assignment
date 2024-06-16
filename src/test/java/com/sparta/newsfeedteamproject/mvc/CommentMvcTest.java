@@ -7,7 +7,6 @@ import com.sparta.newsfeedteamproject.dto.MessageResDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentDelResDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentReqDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentResDto;
-import com.sparta.newsfeedteamproject.dto.feed.FeedReqDto;
 import com.sparta.newsfeedteamproject.entity.Comment;
 import com.sparta.newsfeedteamproject.entity.Feed;
 import com.sparta.newsfeedteamproject.entity.Status;
@@ -123,10 +122,11 @@ public class CommentMvcTest {
         return commentReqDto;
     }
 
-    private CommentResDto mockCommentResDtoSetup(Long commentId) throws NoSuchFieldException, IllegalAccessException {
+    private CommentResDto mockCommentResDtoSetup(Long feedId, Long commentId) throws NoSuchFieldException, IllegalAccessException {
         String contents = "Test";
         Long likes = 0L;
         Comment comment = new Comment();
+        Feed feed = mockFeedSetup(feedId);
 
         Field idField = Comment.class.getDeclaredField("id");
         idField.setAccessible(true);
@@ -145,6 +145,10 @@ public class CommentMvcTest {
         Field likesField = Comment.class.getDeclaredField("likes");
         likesField.setAccessible(true);
         likesField.set(comment, likes);
+
+        Field feedField = Comment.class.getDeclaredField("feed");
+        feedField.setAccessible(true);
+        feedField.set(comment, feed);
 
         CommentResDto commentResDto = new CommentResDto(comment);
 
@@ -185,14 +189,14 @@ public class CommentMvcTest {
         // given
         Long feedId = 1L;
         Long commentId = 1L;
-        CommentResDto commentResDto = mockCommentResDtoSetup(commentId);
+        CommentResDto commentResDto = mockCommentResDtoSetup(feedId, commentId);
         MessageResDto<CommentResDto> response = new MessageResDto<>(200, "댓글 조회가 완료되었습니다!", commentResDto);
 
         // when
-        given(commentService.getComment(feedId, commentId)).willReturn(response);
+        given(commentService.getComment(anyLong(), anyLong())).willReturn(response);
 
         // then
-        mvc.perform(get("/{feedId}/comments/{commentId}", feedId, commentId))
+        mvc.perform(get("/feeds/{feedId}/comments/{commentId}", feedId, commentId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.id").value(1L))
                 .andExpect(jsonPath("$.data.contents").value("Test"))
