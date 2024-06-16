@@ -172,7 +172,6 @@ public class CommentServiceIntegrationTest {
     }
 
     @Test
-    @Order(8)
     @DisplayName("댓글의 좋아요 전체 삭제")
     void testDeleteLikes() {
         // given
@@ -195,32 +194,33 @@ public class CommentServiceIntegrationTest {
     @DisplayName("댓글 삭제")
     class DeleteCommentTest {
         @Test
-        @Order(10)
         @DisplayName("댓글 삭제 - 성공")
-        void testdeleteComment() {
+        @Transactional
+        void testdeleteComment() throws NoSuchFieldException, IllegalAccessException {
             // given
-            Long commentId = createdComment.getId();
-            Long feedId = createdComment.getFeed().getId();
-            user = userRepository.findById(1L).orElse(null);
+            Comment testComment = setComment("Test Comment");
+            commentRepository.save(testComment);
 
             // when
-            MessageResDto<CommentDelResDto> messageResDto = commentService.deleteComment(feedId, commentId, user);
+            MessageResDto<CommentDelResDto> messageResDto = commentService.deleteComment(feed.getId(), testComment.getId(), user);
 
             // then
             assertEquals("댓글 삭제가 완료되었습니다!", messageResDto.getMessage(), "댓글이 올바르게 삭제되지 않았습니다.");
         }
 
         @Test
-        @Order(11)
         @DisplayName("댓글 삭제 - 실패")
-        void testdeleteFeedFail() {
+        @Transactional
+        void testdeleteCommentFail() throws NoSuchFieldException, IllegalAccessException {
             // given
-            Long commentId = createdComment.getId();
-            Long feedId = createdComment.getFeed().getId();
-            user = userRepository.findById(1L).orElse(null);
+            Comment testComment = setComment("Test Comment");
+            commentRepository.save(testComment);;
+
+            User differentUser = new User();
+            differentUser.setUsername("spartaclub2");
 
             // when - then
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> commentService.deleteComment(feedId, commentId, user));
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> commentService.deleteComment(feed.getId(), testComment.getId(), differentUser));
             assertEquals("해당 작업은 작성자만 수정/삭제 할 수 있습니다!", exception.getMessage(), "올바른 예외가 발생되지 않았습니다.");
         }
     }
