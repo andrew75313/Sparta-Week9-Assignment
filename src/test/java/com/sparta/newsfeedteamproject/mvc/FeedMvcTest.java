@@ -218,7 +218,7 @@ public class FeedMvcTest {
         FeedReqDto feedReqDto = mockFeedReqDtoSetup();
         User user = mockUserSetup().getUser();
         Feed feed = new Feed(feedReqDto, user);
-        Long feedId = feed.getId();
+        Long feedId = 1L;
         FeedResDto feedResDto = new FeedResDto(feed);
         MessageResDto<FeedResDto> response = new MessageResDto<>(200, "게시물 수정이 완료되었습니다!", feedResDto);
 
