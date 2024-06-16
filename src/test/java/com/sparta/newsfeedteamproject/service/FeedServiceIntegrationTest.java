@@ -164,14 +164,20 @@ public class FeedServiceIntegrationTest {
 
     @Test
     @DisplayName("단건 게시글 조회")
-    void testGetFeed() {
+    @Transactional
+    void testGetFeed() throws NoSuchFieldException, IllegalAccessException {
+        // given
+        String contents = "Test Feed";
+        Feed testFeed = setFeed(contents);
+        feedRepository.save(testFeed);
+
         // when
-        MessageResDto<FeedResDto> messageResDto = feedService.getFeed(feedId);
+        MessageResDto<FeedResDto> messageResDto = feedService.getFeed(testFeed.getId());
 
         // then
         FeedResDto foundFeedResDto = messageResDto.getData();
 
-        assertEquals(this.feedContents, foundFeedResDto.getContents(), "조회할 feed가 올바르게 조회되지 않았습니다.");
+        assertEquals(contents, foundFeedResDto.getContents(), "조회할 feed가 올바르게 조회되지 않았습니다.");
     }
 
     @Nested
