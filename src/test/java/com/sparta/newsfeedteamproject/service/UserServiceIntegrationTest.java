@@ -39,6 +39,10 @@ public class UserServiceIntegrationTest {
 
     @BeforeEach
     void setUp() throws NoSuchFieldException, IllegalAccessException {
+        this.signupReqDto = setSignupReqDto(this.username, this.password, this.name, this.email, this.userInfo);
+    }
+
+    private SignupReqDto setSignupReqDto(String username, String password, String name, String email, String userInfo) throws NoSuchFieldException, IllegalAccessException {
         signupReqDto = new SignupReqDto();
 
         Field usernameField = SignupReqDto.class.getDeclaredField("username");
@@ -60,6 +64,8 @@ public class UserServiceIntegrationTest {
         Field userInfoField = SignupReqDto.class.getDeclaredField("userInfo");
         userInfoField.setAccessible(true);
         userInfoField.set(signupReqDto, userInfo);
+
+        return signupReqDto;
     }
 
     @Nested
@@ -67,8 +73,8 @@ public class UserServiceIntegrationTest {
     class SignupTest {
 
         @Test
-        @Transactional
         @DisplayName("회원가입 - 성공")
+        @Transactional
         void testSigntup() throws NoSuchFieldException, IllegalAccessException {
             // when
             userService.signup(signupReqDto);
@@ -87,17 +93,18 @@ public class UserServiceIntegrationTest {
         }
 
         @Test
-        @Transactional
         @DisplayName("회원가입 - 중복 username 실패")
+        @Transactional
         void testSignupDuplicatedUsernameFail() throws NoSuchFieldException, IllegalAccessException {
             // given
             userService.signup(signupReqDto);
 
-            SignupReqDto duplicatedReqDto = new SignupReqDto();
+            String password = "Password456!";
+            String name = "Sparta Club2";
+            String email = "sparta2@email.com";
+            String userInfo = "My name is Sparta Club 2.";
 
-            Field usernameField = SignupReqDto.class.getDeclaredField("username");
-            usernameField.setAccessible(true);
-            usernameField.set(duplicatedReqDto, "spartaclub");
+            SignupReqDto duplicatedReqDto = setSignupReqDto(username, password, name, email, userInfo);
 
             // when -then
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.signup(duplicatedReqDto));
@@ -105,21 +112,18 @@ public class UserServiceIntegrationTest {
         }
 
         @Test
-        @Transactional
         @DisplayName("회원가입 - 중복 Email 실패")
+        @Transactional
         void testSignupDuplicatedEmailFail() throws NoSuchFieldException, IllegalAccessException {
             // given
             userService.signup(signupReqDto);
 
-            SignupReqDto duplicatedReqDto = new SignupReqDto();
+            String username = "spartaclub2";
+            String password = "Password456!";
+            String name = "Sparta Club2";
+            String userInfo = "My name is Sparta Club 2.";
 
-            Field usernameField = SignupReqDto.class.getDeclaredField("username");
-            usernameField.setAccessible(true);
-            usernameField.set(duplicatedReqDto, "spartaclub2");
-
-            Field emailField = SignupReqDto.class.getDeclaredField("email");
-            emailField.setAccessible(true);
-            emailField.set(duplicatedReqDto, "sparta@email.com");
+            SignupReqDto duplicatedReqDto = setSignupReqDto(username, password, name, email, userInfo);
 
             // when -then
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.signup(duplicatedReqDto));
