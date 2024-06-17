@@ -118,7 +118,7 @@ public class FeedServiceIntegrationTest {
             ReflectionTestUtils.setField(feedReqDto, "contents", contents);
 
             User differentUser = new User();
-            user.setId(user.getId() + 1L);
+            differentUser.setId(user.getId() + 1L);
 
             // when - then
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> feedService.updateFeed(feed.getId(), feedReqDto, differentUser));
@@ -195,7 +195,7 @@ public class FeedServiceIntegrationTest {
             feedRepository.save(testFeed);
 
             User differentUser = new User();
-            user.setId(user.getId() + 1L);
+            differentUser.setId(user.getId() + 1L);
 
             // when - then
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> feedService.deleteFeed(testFeed.getId(), differentUser));
