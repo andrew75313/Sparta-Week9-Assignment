@@ -21,11 +21,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.lang.reflect.Field;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -70,7 +70,7 @@ public class FeedMvcTest {
                 .build();
     }
 
-    private FeedResDto mockFeedResDtoSetup(Long id) throws NoSuchFieldException, IllegalAccessException {
+    private FeedResDto mockFeedResDtoSetup(Long id) {
 
         // 임의의 FEED 생성
         Long feedId = id;
@@ -78,36 +78,23 @@ public class FeedMvcTest {
         Long likes = 0L;
         Feed feed = new Feed();
 
-        Field idField = Feed.class.getDeclaredField("id");
-        idField.setAccessible(true);
-        idField.set(feed, feedId);
-
         User user = mockUserSetup().getUser();
 
-        Field userField = Feed.class.getDeclaredField("user");
-        userField.setAccessible(true);
-        userField.set(feed, user);
-
-        Field contentsField = Feed.class.getDeclaredField("contents");
-        contentsField.setAccessible(true);
-        contentsField.set(feed, contents);
-
-        Field likesField = Feed.class.getDeclaredField("likes");
-        likesField.setAccessible(true);
-        likesField.set(feed, likes);
+        ReflectionTestUtils.setField(feed, "id", feedId);
+        ReflectionTestUtils.setField(feed, "user", user);
+        ReflectionTestUtils.setField(feed, "contents", contents);
+        ReflectionTestUtils.setField(feed, "likes", likes);
 
         FeedResDto feedResDto = new FeedResDto(feed);
 
         return feedResDto;
     }
 
-    private FeedReqDto mockFeedReqDtoSetup() throws NoSuchFieldException, IllegalAccessException {
+    private FeedReqDto mockFeedReqDtoSetup() {
         String contents = "Test";
         FeedReqDto feedReqDto = new FeedReqDto();
 
-        Field contentsField = FeedReqDto.class.getDeclaredField("contents");
-        contentsField.setAccessible(true);
-        contentsField.set(feedReqDto, contents);
+        ReflectionTestUtils.setField(feedReqDto, "contents", contents);
 
         return feedReqDto;
     }

@@ -23,11 +23,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.lang.reflect.Field;
 import java.security.Principal;
 import java.time.LocalDateTime;
 
@@ -85,70 +85,46 @@ public class CommentMvcTest {
         return testUserDetails;
     }
 
-    private Feed mockFeedSetup(Long feedId) throws NoSuchFieldException, IllegalAccessException {
+    private Feed mockFeedSetup(Long feedId) {
         String contents = "Test";
         Long likes = 0L;
         Feed feed = new Feed();
 
-        Field idField = Feed.class.getDeclaredField("id");
-        idField.setAccessible(true);
-        idField.set(feed, feedId);
-
         User user = mockUserSetup().getUser();
 
-        Field userField = Feed.class.getDeclaredField("user");
-        userField.setAccessible(true);
-        userField.set(feed, user);
-
-        Field contentsField = Feed.class.getDeclaredField("contents");
-        contentsField.setAccessible(true);
-        contentsField.set(feed, contents);
-
-        Field likesField = Feed.class.getDeclaredField("likes");
-        likesField.setAccessible(true);
-        likesField.set(feed, likes);
+        ReflectionTestUtils.setField(feed, "id", feedId);
+        ReflectionTestUtils.setField(feed, "user", user);
+        ReflectionTestUtils.setField(feed, "contents", contents);
+        ReflectionTestUtils.setField(feed, "likes", likes);
 
         return feed;
     }
 
-    private CommentReqDto mockCommentReqDtoSetup() throws NoSuchFieldException, IllegalAccessException {
+    private CommentReqDto mockCommentReqDtoSetup() {
         String contents = "Test";
         CommentReqDto commentReqDto = new CommentReqDto();
 
-        Field contentsField = CommentReqDto.class.getDeclaredField("contents");
-        contentsField.setAccessible(true);
-        contentsField.set(commentReqDto, contents);
+        ReflectionTestUtils.setField(commentReqDto, "contents", contents);
+
 
         return commentReqDto;
     }
 
-    private CommentResDto mockCommentResDtoSetup(Long feedId, Long commentId) throws NoSuchFieldException, IllegalAccessException {
+    private CommentResDto mockCommentResDtoSetup(Long feedId, Long commentId) {
         String contents = "Test";
         Long likes = 0L;
-        Comment comment = new Comment();
-        Feed feed = mockFeedSetup(feedId);
 
-        Field idField = Comment.class.getDeclaredField("id");
-        idField.setAccessible(true);
-        idField.set(comment, commentId);
+        Comment comment = new Comment();
+
+        Feed feed = mockFeedSetup(feedId);
 
         User user = mockUserSetup().getUser();
 
-        Field userField = Comment.class.getDeclaredField("user");
-        userField.setAccessible(true);
-        userField.set(comment, user);
-
-        Field contentsField = Comment.class.getDeclaredField("contents");
-        contentsField.setAccessible(true);
-        contentsField.set(comment, contents);
-
-        Field likesField = Comment.class.getDeclaredField("likes");
-        likesField.setAccessible(true);
-        likesField.set(comment, likes);
-
-        Field feedField = Comment.class.getDeclaredField("feed");
-        feedField.setAccessible(true);
-        feedField.set(comment, feed);
+        ReflectionTestUtils.setField(comment, "id", commentId);
+        ReflectionTestUtils.setField(comment, "user", user);
+        ReflectionTestUtils.setField(comment, "contents", contents);
+        ReflectionTestUtils.setField(comment, "likes", likes);
+        ReflectionTestUtils.setField(comment, "feed", feed);
 
         CommentResDto commentResDto = new CommentResDto(comment);
 
@@ -212,12 +188,11 @@ public class CommentMvcTest {
         CommentReqDto commentReqDto = mockCommentReqDtoSetup();
 
         Feed feed = mockFeedSetup(feedId);
-        User user = mockUserSetup().getUser();
-        Comment comment = new Comment(commentReqDto, feed, user, 0L);
 
-        Field idField = Comment.class.getDeclaredField("id");
-        idField.setAccessible(true);
-        idField.set(comment, commentId);
+        User user = mockUserSetup().getUser();
+
+        Comment comment = new Comment(commentReqDto, feed, user, 0L);
+        ReflectionTestUtils.setField(comment, "id", commentId);
 
         CommentResDto commentResDto = new CommentResDto(comment);
         MessageResDto<CommentResDto> response = new MessageResDto<>(200, "댓글 수정이 완료되었습니다!", commentResDto);
