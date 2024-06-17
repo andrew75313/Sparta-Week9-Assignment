@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
@@ -44,11 +45,9 @@ public class FeedServiceUnitTest {
 
 
     @BeforeEach
-    void beforeFindFeedTest() throws NoSuchFieldException, IllegalAccessException {
+    void beforeFindFeedTest() {
         feedReqDto = new FeedReqDto();
-        Field field = FeedReqDto.class.getDeclaredField("contents");
-        field.setAccessible(true);
-        field.set(feedReqDto, contents);
+        ReflectionTestUtils.setField(feedReqDto, "contents", contents);
 
         user = new User(username, password, name, email, userInfo, status, LocalDateTime.now());
 

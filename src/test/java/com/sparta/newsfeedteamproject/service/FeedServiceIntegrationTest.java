@@ -8,13 +8,12 @@ import com.sparta.newsfeedteamproject.entity.Status;
 import com.sparta.newsfeedteamproject.entity.User;
 import com.sparta.newsfeedteamproject.repository.FeedRepository;
 import com.sparta.newsfeedteamproject.repository.UserRepository;
-import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,12 +52,10 @@ public class FeedServiceIntegrationTest {
         userRepository.delete(user);
     }
 
-    private Feed setFeed(String contents) throws NoSuchFieldException, IllegalAccessException {
+    private Feed setFeed(String contents) {
         FeedReqDto feedReqDto = new FeedReqDto();
 
-        Field contentsField = FeedReqDto.class.getDeclaredField("contents");
-        contentsField.setAccessible(true);
-        contentsField.set(feedReqDto, contents);
+        ReflectionTestUtils.setField(feedReqDto, "contents", contents);
 
         Feed feed = new Feed(feedReqDto, user);
 
@@ -69,14 +66,12 @@ public class FeedServiceIntegrationTest {
     @Test
     @Transactional
     @DisplayName("게시글 등록")
-    void testCreatedFeed() throws NoSuchFieldException, IllegalAccessException {
+    void testCreatedFeed() {
         // given
         String contents = "Test Feed";
 
         FeedReqDto feedReqDto = new FeedReqDto();
-        Field contentsField = FeedReqDto.class.getDeclaredField("contents");
-        contentsField.setAccessible(true);
-        contentsField.set(feedReqDto, contents);
+        ReflectionTestUtils.setField(feedReqDto, "contents", contents);
 
         // when
         MessageResDto<FeedResDto> messageResDto = feedService.createFeed(feedReqDto, user);
@@ -92,7 +87,7 @@ public class FeedServiceIntegrationTest {
         @Test
         @DisplayName("게시글 수정 - 성공")
         @Transactional
-        void testUpdateFeed() throws NoSuchFieldException, IllegalAccessException {
+        void testUpdateFeed() {
             // given
             Feed feed = setFeed("Test Feed");
             feedRepository.save(feed);
@@ -100,9 +95,7 @@ public class FeedServiceIntegrationTest {
             String contents = "UPDATE Test Feed";
 
             FeedReqDto feedReqDto = new FeedReqDto();
-            Field field = FeedReqDto.class.getDeclaredField("contents");
-            field.setAccessible(true);
-            field.set(feedReqDto, contents);
+            ReflectionTestUtils.setField(feedReqDto, "contents", contents);
 
             // when
             MessageResDto<FeedResDto> messageResDto = feedService.updateFeed(feed.getId(), feedReqDto, user);
@@ -114,7 +107,7 @@ public class FeedServiceIntegrationTest {
         @Test
         @DisplayName("게시글 수정 - 실패")
         @Transactional
-        void testUpdateFeedFail() throws NoSuchFieldException, IllegalAccessException {
+        void testUpdateFeedFail() {
             // given
             Feed feed = setFeed("Test Feed");
             feedRepository.save(feed);
@@ -122,12 +115,10 @@ public class FeedServiceIntegrationTest {
             String contents = "UPDATE Test Feed";
 
             FeedReqDto feedReqDto = new FeedReqDto();
-            Field field = FeedReqDto.class.getDeclaredField("contents");
-            field.setAccessible(true);
-            field.set(feedReqDto, contents);
+            ReflectionTestUtils.setField(feedReqDto, "contents", contents);
 
             User differentUser = new User();
-            user.setId(user.getId()+1L);
+            user.setId(user.getId() + 1L);
 
             // when - then
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> feedService.updateFeed(feed.getId(), feedReqDto, differentUser));
@@ -138,7 +129,7 @@ public class FeedServiceIntegrationTest {
     @Test
     @DisplayName("모든 게시글 조회")
     @Transactional
-    void testGetAllFeeds() throws NoSuchFieldException, IllegalAccessException {
+    void testGetAllFeeds() {
         // given
         Feed firstTestFeed = setFeed("Test Feed 1");
         feedRepository.save(firstTestFeed);
@@ -162,7 +153,7 @@ public class FeedServiceIntegrationTest {
     @Test
     @DisplayName("단건 게시글 조회")
     @Transactional
-    void testGetFeed() throws NoSuchFieldException, IllegalAccessException {
+    void testGetFeed() {
         // given
         String contents = "Test Feed";
         Feed testFeed = setFeed(contents);
@@ -183,7 +174,7 @@ public class FeedServiceIntegrationTest {
         @Test
         @DisplayName("게시글 삭제 - 성공")
         @Transactional
-        void deleteFeed() throws NoSuchFieldException, IllegalAccessException {
+        void deleteFeed() {
             // given
             Feed testFeed = setFeed("Test Feed");
             feedRepository.save(testFeed);
@@ -198,13 +189,13 @@ public class FeedServiceIntegrationTest {
         @Test
         @DisplayName("게시글 삭제 - 실패")
         @Transactional
-        void deleteFeedFail() throws NoSuchFieldException, IllegalAccessException {
+        void deleteFeedFail() {
             // given
             Feed testFeed = setFeed("Test Feed");
             feedRepository.save(testFeed);
 
             User differentUser = new User();
-            user.setId(user.getId()+1L);
+            user.setId(user.getId() + 1L);
 
             // when - then
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> feedService.deleteFeed(testFeed.getId(), differentUser));

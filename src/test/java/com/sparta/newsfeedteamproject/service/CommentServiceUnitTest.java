@@ -15,8 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -48,20 +48,17 @@ public class CommentServiceUnitTest {
     Comment comment;
 
     @BeforeEach
-    void beforeFindLikeTest() throws NoSuchFieldException, IllegalAccessException {
+    void beforeFindLikeTest() {
         user = new User(username, password, name, email, userInfo, status, LocalDateTime.now());
 
         feedReqDto = new FeedReqDto();
-        Field feedContentsField = FeedReqDto.class.getDeclaredField("contents");
-        feedContentsField.setAccessible(true);
-        feedContentsField.set(feedReqDto, contents);
+        ReflectionTestUtils.setField(feedReqDto, "contents", contents);
 
         feed = new Feed(feedReqDto, user);
 
         commentReqDto = new CommentReqDto();
-        Field commentContentField = CommentReqDto.class.getDeclaredField("contents");
-        commentContentField.setAccessible(true);
-        commentContentField.set(commentReqDto, contents);
+        ReflectionTestUtils.setField(commentReqDto, "contents", contents);
+
 
         comment = new Comment(commentReqDto, feed, user, likes);
     }

@@ -16,9 +16,9 @@ import com.sparta.newsfeedteamproject.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,7 +44,7 @@ public class CommentServiceIntegrationTest {
     Feed feed;
 
     @BeforeEach
-    void setUp() throws NoSuchFieldException, IllegalAccessException {
+    void setUp() {
         user = new User("spartaclub",
                 "Password123!",
                 "Sparta Club",
@@ -56,9 +56,7 @@ public class CommentServiceIntegrationTest {
         userRepository.save(user);
 
         FeedReqDto feedReqDto = new FeedReqDto();
-        Field contentsField = FeedReqDto.class.getDeclaredField("contents");
-        contentsField.setAccessible(true);
-        contentsField.set(feedReqDto, "Test Feed");
+        ReflectionTestUtils.setField(feedReqDto, "contents", "Test Feed");
 
         feed = new Feed(feedReqDto, user);
 
@@ -71,12 +69,10 @@ public class CommentServiceIntegrationTest {
         feedRepository.delete(feed);
     }
 
-    private Comment setComment(String contents) throws NoSuchFieldException, IllegalAccessException {
+    private Comment setComment(String contents) {
         CommentReqDto commentReqDto = new CommentReqDto();
-
-        Field contentsField = CommentReqDto.class.getDeclaredField("contents");
-        contentsField.setAccessible(true);
-        contentsField.set(commentReqDto, contents);
+        
+        ReflectionTestUtils.setField(commentReqDto, "contents", contents);
 
         Comment comment = new Comment(commentReqDto, feed, user, 0L);
 
@@ -86,15 +82,13 @@ public class CommentServiceIntegrationTest {
     @Test
     @DisplayName("댓글 등록")
     @Transactional
-    void testCreatedComment() throws NoSuchFieldException, IllegalAccessException {
+    void testCreatedComment() {
         // given
         String contents = "Test Comment";
 
         CommentReqDto commentReqDto = new CommentReqDto();
-        Field contentsField = CommentReqDto.class.getDeclaredField("contents");
-        contentsField.setAccessible(true);
-        contentsField.set(commentReqDto, contents);
-
+        ReflectionTestUtils.setField(commentReqDto, "contents", contents);
+        
         // when
         MessageResDto<CommentResDto> messageResDto = commentService.createComment(feed.getId(), commentReqDto, user);
 
@@ -109,7 +103,7 @@ public class CommentServiceIntegrationTest {
         @Test
         @DisplayName("댓글 수정 - 성공")
         @Transactional
-        void testUpdateComment() throws NoSuchFieldException, IllegalAccessException {
+        void testUpdateComment() {
             // given
             Comment comment = setComment("Test Comment");
             commentRepository.save(comment);
@@ -117,9 +111,7 @@ public class CommentServiceIntegrationTest {
             String contents = "UPDATE Test Feed";
 
             CommentReqDto commentReqDto = new CommentReqDto();
-            Field field = CommentReqDto.class.getDeclaredField("contents");
-            field.setAccessible(true);
-            field.set(commentReqDto, contents);
+            ReflectionTestUtils.setField(commentReqDto, "contents", contents);
 
             // when
             MessageResDto<CommentResDto> messageResDto = commentService.updateComment(feed.getId(), comment.getId(), commentReqDto, user);
@@ -131,7 +123,7 @@ public class CommentServiceIntegrationTest {
         @Test
         @DisplayName("댓글 수정 - 실패")
         @Transactional
-        void testUpdateCommentFail() throws NoSuchFieldException, IllegalAccessException {
+        void testUpdateCommentFail() {
             // given
             Comment comment = setComment("Test Comment");
             commentRepository.save(comment);
@@ -139,9 +131,7 @@ public class CommentServiceIntegrationTest {
             String contents = "UPDATE Test Feed";
 
             CommentReqDto commentReqDto = new CommentReqDto();
-            Field field = CommentReqDto.class.getDeclaredField("contents");
-            field.setAccessible(true);
-            field.set(commentReqDto, contents);
+            ReflectionTestUtils.setField(commentReqDto, "contents", contents);
 
             User differentUser = new User();
             differentUser.setUsername("spartaclub2");
@@ -155,7 +145,7 @@ public class CommentServiceIntegrationTest {
     @Test
     @DisplayName("단건 댓글 조회")
     @Transactional
-    void testGetComment() throws NoSuchFieldException, IllegalAccessException {
+    void testGetComment() {
         // given
         String contents = "Test Comment";
         Comment testComment = setComment(contents);
@@ -176,7 +166,7 @@ public class CommentServiceIntegrationTest {
         @Test
         @DisplayName("댓글 삭제 - 성공")
         @Transactional
-        void testdeleteComment() throws NoSuchFieldException, IllegalAccessException {
+        void testdeleteComment() {
             // given
             Comment testComment = setComment("Test Comment");
             commentRepository.save(testComment);
@@ -191,7 +181,7 @@ public class CommentServiceIntegrationTest {
         @Test
         @DisplayName("댓글 삭제 - 실패")
         @Transactional
-        void testdeleteCommentFail() throws NoSuchFieldException, IllegalAccessException {
+        void testdeleteCommentFail() {
             // given
             Comment testComment = setComment("Test Comment");
             commentRepository.save(testComment);;

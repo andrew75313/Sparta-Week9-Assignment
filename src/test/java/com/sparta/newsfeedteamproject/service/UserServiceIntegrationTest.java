@@ -12,9 +12,9 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,32 +39,18 @@ public class UserServiceIntegrationTest {
     SignupReqDto signupReqDto;
 
     @BeforeEach
-    void setUp() throws NoSuchFieldException, IllegalAccessException {
+    void setUp() {
         this.signupReqDto = setSignupReqDto(this.username, this.password, this.name, this.email, this.userInfo);
     }
 
-    private SignupReqDto setSignupReqDto(String username, String password, String name, String email, String userInfo) throws NoSuchFieldException, IllegalAccessException {
+    private SignupReqDto setSignupReqDto(String username, String password, String name, String email, String userInfo) {
         signupReqDto = new SignupReqDto();
 
-        Field usernameField = SignupReqDto.class.getDeclaredField("username");
-        usernameField.setAccessible(true);
-        usernameField.set(signupReqDto, username);
-
-        Field passwordField = SignupReqDto.class.getDeclaredField("password");
-        passwordField.setAccessible(true);
-        passwordField.set(signupReqDto, password);
-
-        Field nameField = SignupReqDto.class.getDeclaredField("name");
-        nameField.setAccessible(true);
-        nameField.set(signupReqDto, name);
-
-        Field emailField = SignupReqDto.class.getDeclaredField("email");
-        emailField.setAccessible(true);
-        emailField.set(signupReqDto, email);
-
-        Field userInfoField = SignupReqDto.class.getDeclaredField("userInfo");
-        userInfoField.setAccessible(true);
-        userInfoField.set(signupReqDto, userInfo);
+        ReflectionTestUtils.setField(signupReqDto, "username", username);
+        ReflectionTestUtils.setField(signupReqDto, "password", password);
+        ReflectionTestUtils.setField(signupReqDto, "name", name);
+        ReflectionTestUtils.setField(signupReqDto, "email", email);
+        ReflectionTestUtils.setField(signupReqDto, "userInfo", userInfo);
 
         return signupReqDto;
     }
@@ -76,7 +62,7 @@ public class UserServiceIntegrationTest {
         @Test
         @DisplayName("회원가입 - 성공")
         @Transactional
-        void testSigntup() throws NoSuchFieldException, IllegalAccessException {
+        void testSigntup() {
             // when
             userService.signup(signupReqDto);
 
@@ -96,7 +82,7 @@ public class UserServiceIntegrationTest {
         @Test
         @DisplayName("회원가입 - 중복 username 실패")
         @Transactional
-        void testSignupDuplicatedUsernameFail() throws NoSuchFieldException, IllegalAccessException {
+        void testSignupDuplicatedUsernameFail() {
             // given
             userService.signup(signupReqDto);
 
@@ -115,7 +101,7 @@ public class UserServiceIntegrationTest {
         @Test
         @DisplayName("회원가입 - 중복 Email 실패")
         @Transactional
-        void testSignupDuplicatedEmailFail() throws NoSuchFieldException, IllegalAccessException {
+        void testSignupDuplicatedEmailFail() {
             // given
             userService.signup(signupReqDto);
 
@@ -139,7 +125,7 @@ public class UserServiceIntegrationTest {
         @Test
         @Transactional
         @DisplayName("회원탈퇴 - 성공")
-        void testWithdraw() throws NoSuchFieldException, IllegalAccessException {
+        void testWithdraw() {
             // given
             userService.signup(signupReqDto);
             User user = userService.findByUsername(username);
@@ -147,9 +133,7 @@ public class UserServiceIntegrationTest {
             Long userId = user.getId();
 
             UserAuthReqDto reqDto = new UserAuthReqDto();
-            Field passwordField = UserAuthReqDto.class.getDeclaredField("password");
-            passwordField.setAccessible(true);
-            passwordField.set(reqDto, password);
+            ReflectionTestUtils.setField(reqDto, "password", password);
 
             UserDetailsImpl userDetails = new UserDetailsImpl(user);
 
@@ -164,15 +148,13 @@ public class UserServiceIntegrationTest {
         @Test
         @Transactional
         @DisplayName("회원탈퇴 - 실패")
-        void testWithdrawUnmatchedUsernameFail() throws NoSuchFieldException, IllegalAccessException {
+        void testWithdrawUnmatchedUsernameFail() {
             // given
             userService.signup(signupReqDto);
             User savedUser = userService.findByUsername(username);
 
             UserAuthReqDto reqDto = new UserAuthReqDto();
-            Field passwordField = UserAuthReqDto.class.getDeclaredField("password");
-            passwordField.setAccessible(true);
-            passwordField.set(reqDto, password);
+            ReflectionTestUtils.setField(reqDto, "password", password);
 
             String username = "spartaclub2";
             String email = "sparta2@email.com";
@@ -221,7 +203,7 @@ public class UserServiceIntegrationTest {
         @Test
         @Transactional
         @DisplayName("로그아웃 - 사용자 ID 불일치 실패")
-        void testLogoutUnmatchedUseridFail() throws NoSuchFieldException, IllegalAccessException {
+        void testLogoutUnmatchedUseridFail() {
             // given
             userService.signup(signupReqDto);
             User user = userService.findByUsername(username);
@@ -307,24 +289,13 @@ public class UserServiceIntegrationTest {
 
 
         @BeforeEach
-        void beforeTestEditProfile() throws NoSuchFieldException, IllegalAccessException {
+        void beforeTestEditProfile() {
             updateReqDto = new UpdateReqDto();
 
-            Field passwordField = UpdateReqDto.class.getDeclaredField("password");
-            passwordField.setAccessible(true);
-            passwordField.set(updateReqDto, password);
-
-            Field newPasswordField = UpdateReqDto.class.getDeclaredField("newPassword");
-            newPasswordField.setAccessible(true);
-            newPasswordField.set(updateReqDto, newPassword);
-
-            Field newNamelField = UpdateReqDto.class.getDeclaredField("newName");
-            newNamelField.setAccessible(true);
-            newNamelField.set(updateReqDto, newName);
-
-            Field newUserInfoField = UpdateReqDto.class.getDeclaredField("newUserInfo");
-            newUserInfoField.setAccessible(true);
-            newUserInfoField.set(updateReqDto, newUserInfO);
+            ReflectionTestUtils.setField(updateReqDto, "password", password);
+            ReflectionTestUtils.setField(updateReqDto, "newPassword", newPassword);
+            ReflectionTestUtils.setField(updateReqDto, "newName", newName);
+            ReflectionTestUtils.setField(updateReqDto, "newUserInfo", newUserInfO);
         }
 
         @Test
@@ -380,7 +351,7 @@ public class UserServiceIntegrationTest {
         @Test
         @Transactional
         @DisplayName("프로필 수정 - 동일한 Password로 수정 실패")
-        void testEditProfileDuplicatedPasswordFail() throws NoSuchFieldException, IllegalAccessException {
+        void testEditProfileDuplicatedPasswordFail() {
             // given
             userService.signup(signupReqDto);
             User user = userService.findByUsername(username);
@@ -389,9 +360,7 @@ public class UserServiceIntegrationTest {
 
             UserDetailsImpl userDetails = new UserDetailsImpl(user);
 
-            Field newPasswordField = UpdateReqDto.class.getDeclaredField("newPassword");
-            newPasswordField.setAccessible(true);
-            newPasswordField.set(updateReqDto, password);
+            ReflectionTestUtils.setField(updateReqDto, "newPassword", password);
 
             // when - then
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> userService.editProfile(userId, updateReqDto, userDetails));
