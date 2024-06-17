@@ -3,6 +3,7 @@ package com.sparta.newsfeedteamproject.aop;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -22,8 +23,8 @@ public class RequestLogAop {
     @Pointcut("execution(* com.sparta.newsfeedteamproject.controller.*.*(..))")
     private void controller() {}
 
-    // Controller 실행 될 때 = 실행 전에 Request 정보 Log로 출력 = void
-    @Before("controller()")
+    // Controller 실행 전후에 Request 정보 Log로 출력 = void
+    @Around("controller()")
     public void logRequestInfo() {
 
         // 요청 ContextHolder에서 서블릿 객체 속성 캐스팅해 구현체로 가지고 오기
@@ -31,7 +32,7 @@ public class RequestLogAop {
 
         // 요청 null check
         if (attributes == null) {
-            log.info("Request 정보가 없습니다.");
+            log.warn("Request 정보가 없습니다."); // info -> warn
         }
 
         // 서블릿 객체의 속성 중 HttpServletRequest 요청 정보 가지고 오기
