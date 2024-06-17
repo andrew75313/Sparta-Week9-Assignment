@@ -8,8 +8,8 @@ import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import java.lang.reflect.Field;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,14 +30,12 @@ public class FeedReqDtoTest {
     // 정상적인 유효한 FeedReqDto 생성 테스트
     @Test
     @DisplayName("유효한 FeedReqDto 생성 테스트")
-    void testValidContents() throws NoSuchFieldException, IllegalAccessException {
+    void testValidContents() {
         // given
         String contents = "Feed test";
 
         // when
-        Field field = FeedReqDto.class.getDeclaredField("contents");
-        field.setAccessible(true);
-        field.set(feedReqDto, contents);
+        ReflectionTestUtils.setField(feedReqDto, "contents", contents);
 
         // then
         assertEquals(contents, feedReqDto.getContents(), "Contents가 올바르게 설정되지 않았습니다.");
@@ -46,13 +44,11 @@ public class FeedReqDtoTest {
     // Contents 필드 유효성 테스트
     @Test
     @DisplayName("Contents 필드 @Notblank Validation 테스트")
-    void testContentsNotBlank() throws NoSuchFieldException, IllegalAccessException {
+    void testContentsNotBlank() {
         // given
         String contents = "";
 
-        Field field = FeedReqDto.class.getDeclaredField("contents");
-        field.setAccessible(true);
-        field.set(feedReqDto, contents);
+        ReflectionTestUtils.setField(feedReqDto, "contents", contents);
 
         // when
         ConstraintViolation<FeedReqDto> violation = validator.validate(feedReqDto).stream().collect(Collectors.toList()).get(0);

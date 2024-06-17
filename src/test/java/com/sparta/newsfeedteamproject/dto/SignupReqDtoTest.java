@@ -9,8 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,25 +43,11 @@ public class SignupReqDtoTest {
         String userInfo = "My name is Sparta Club.";
 
         // DTO 필드가 모두 private 이므로 Reflection을 사용해서 모두 지정
-        Field usernameField = SignupReqDto.class.getDeclaredField("username");
-        usernameField.setAccessible(true);
-        usernameField.set(signupReqDto, username);
-
-        Field passwordField = SignupReqDto.class.getDeclaredField("password");
-        passwordField.setAccessible(true);
-        passwordField.set(signupReqDto, password);
-
-        Field nameField = SignupReqDto.class.getDeclaredField("name");
-        nameField.setAccessible(true);
-        nameField.set(signupReqDto, name);
-
-        Field emailField = SignupReqDto.class.getDeclaredField("email");
-        emailField.setAccessible(true);
-        emailField.set(signupReqDto, email);
-
-        Field userInfoField = SignupReqDto.class.getDeclaredField("userInfo");
-        userInfoField.setAccessible(true);
-        userInfoField.set(signupReqDto, userInfo);
+        ReflectionTestUtils.setField(signupReqDto, "username", username);
+        ReflectionTestUtils.setField(signupReqDto, "password", password);
+        ReflectionTestUtils.setField(signupReqDto, "name", name);
+        ReflectionTestUtils.setField(signupReqDto, "email", email);
+        ReflectionTestUtils.setField(signupReqDto, "userInfo", userInfo);
 
         // when - then
         assertEquals(username, signupReqDto.getUsername(), "Username이 올바르게 설정되지 않았습니다.");
@@ -79,13 +65,11 @@ public class SignupReqDtoTest {
 
         @Test
         @DisplayName("@Notblank Validation 테스트")
-        void testUsernameNotBlank() throws NoSuchFieldException, IllegalAccessException {
+        void testUsernameNotBlank() {
             // given
             String username = "";
 
-            Field field = SignupReqDto.class.getDeclaredField("username");
-            field.setAccessible(true);
-            field.set(signupReqDto, username);
+            ReflectionTestUtils.setField(signupReqDto, "username", username);
 
             // when
             List<ConstraintViolation<SignupReqDto>> validationList = validator.validate(signupReqDto).stream().collect(Collectors.toList());
@@ -97,13 +81,11 @@ public class SignupReqDtoTest {
 
         @Test
         @DisplayName("@Size Validation 테스트")
-        void testUsernameSize() throws NoSuchFieldException, IllegalAccessException {
+        void testUsernameSize() {
             // given
             String username = "Test1!";
 
-            Field field = SignupReqDto.class.getDeclaredField("username");
-            field.setAccessible(true);
-            field.set(signupReqDto, username);
+            ReflectionTestUtils.setField(signupReqDto, "username", username);
 
             // when
             List<ConstraintViolation<SignupReqDto>> validationList = validator.validate(signupReqDto).stream().collect(Collectors.toList());
@@ -115,13 +97,11 @@ public class SignupReqDtoTest {
 
         @Test
         @DisplayName("@Pattern Validation 테스트")
-        void testUsernamePattern() throws NoSuchFieldException, IllegalAccessException {
+        void testUsernamePattern() {
             // given
             String username = "testusername!";
 
-            Field field = SignupReqDto.class.getDeclaredField("username");
-            field.setAccessible(true);
-            field.set(signupReqDto, username);
+            ReflectionTestUtils.setField(signupReqDto, "username", username);
 
             // when
             List<ConstraintViolation<SignupReqDto>> validationList = validator.validate(signupReqDto).stream().collect(Collectors.toList());
@@ -140,13 +120,11 @@ public class SignupReqDtoTest {
 
         @Test
         @DisplayName("@Notblank Validation 테스트")
-        void testPasswordNotBlank() throws NoSuchFieldException, IllegalAccessException {
+        void testPasswordNotBlank() {
             // given
             String password = "";
 
-            Field field = SignupReqDto.class.getDeclaredField("password");
-            field.setAccessible(true);
-            field.set(signupReqDto, password);
+            ReflectionTestUtils.setField(signupReqDto, "password", password);
 
             // when
             List<ConstraintViolation<SignupReqDto>> validationList = validator.validate(signupReqDto).stream().collect(Collectors.toList());
@@ -158,13 +136,11 @@ public class SignupReqDtoTest {
 
         @Test
         @DisplayName("@Size Validation 테스트")
-        void testPasswordSize() throws NoSuchFieldException, IllegalAccessException {
+        void testPasswordSize() {
             // given
             String password = "Pw1!";
 
-            Field field = SignupReqDto.class.getDeclaredField("password");
-            field.setAccessible(true);
-            field.set(signupReqDto, password);
+            ReflectionTestUtils.setField(signupReqDto, "password", password);
 
             // when
             List<ConstraintViolation<SignupReqDto>> validationList = validator.validate(signupReqDto).stream().collect(Collectors.toList());
@@ -176,13 +152,11 @@ public class SignupReqDtoTest {
 
         @Test
         @DisplayName("@Pattern Validation 테스트")
-        void testPasswordPattern() throws NoSuchFieldException, IllegalAccessException {
+        void testPasswordPattern() {
             // given
             String password = "passwordtest!";
 
-            Field field = SignupReqDto.class.getDeclaredField("password");
-            field.setAccessible(true);
-            field.set(signupReqDto, password);
+            ReflectionTestUtils.setField(signupReqDto, "password", password);
 
             // when
             List<ConstraintViolation<SignupReqDto>> validationList = validator.validate(signupReqDto).stream().collect(Collectors.toList());
@@ -196,13 +170,11 @@ public class SignupReqDtoTest {
     // Name 필드 테스트
     @Test
     @DisplayName("Name 필드 @Notblank Validation 테스트")
-    void testNameNotBlank() throws NoSuchFieldException, IllegalAccessException {
+    void testNameNotBlank() {
         // given
         String name = "";
 
-        Field field = SignupReqDto.class.getDeclaredField("name");
-        field.setAccessible(true);
-        field.set(signupReqDto, name);
+        ReflectionTestUtils.setField(signupReqDto, "name", name);
 
         // when
         List<ConstraintViolation<SignupReqDto>> validationList = validator.validate(signupReqDto).stream().collect(Collectors.toList());
@@ -220,13 +192,11 @@ public class SignupReqDtoTest {
 
         @Test
         @DisplayName("@Notblank Validation 테스트")
-        void testEmailNotBlank() throws NoSuchFieldException, IllegalAccessException {
+        void testEmailNotBlank() {
             // given
             String email = "";
 
-            Field field = SignupReqDto.class.getDeclaredField("email");
-            field.setAccessible(true);
-            field.set(signupReqDto, email);
+            ReflectionTestUtils.setField(signupReqDto, "email", email);
 
             // when
             List<ConstraintViolation<SignupReqDto>> validationList = validator.validate(signupReqDto).stream().collect(Collectors.toList());
@@ -238,13 +208,11 @@ public class SignupReqDtoTest {
 
         @Test
         @DisplayName("@Email Validation 테스트")
-        void testPasswordPattern() throws NoSuchFieldException, IllegalAccessException {
+        void testPasswordPattern() {
             // given
             String email = "email";
 
-            Field field = SignupReqDto.class.getDeclaredField("email");
-            field.setAccessible(true);
-            field.set(signupReqDto, email);
+            ReflectionTestUtils.setField(signupReqDto, "email", email);
 
             // when
             List<ConstraintViolation<SignupReqDto>> validationList = validator.validate(signupReqDto).stream().collect(Collectors.toList());

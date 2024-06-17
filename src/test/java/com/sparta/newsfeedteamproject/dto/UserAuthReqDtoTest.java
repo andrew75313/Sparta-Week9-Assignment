@@ -9,8 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,13 +39,8 @@ public class UserAuthReqDtoTest {
         String password = "Password123!";
 
         // DTO 필드가 모두 private 이므로 Reflection을 사용해서 모두 지정
-        Field usernameField = UserAuthReqDto.class.getDeclaredField("username");
-        usernameField.setAccessible(true);
-        usernameField.set(userAuthReqDto, username);
-
-        Field passwordField = UserAuthReqDto.class.getDeclaredField("password");
-        passwordField.setAccessible(true);
-        passwordField.set(userAuthReqDto, password);
+        ReflectionTestUtils.setField(userAuthReqDto, "username", username);
+        ReflectionTestUtils.setField(userAuthReqDto, "password", password);
 
         // when - then
         assertEquals(username, userAuthReqDto.getUsername(), "Username이 올바르게 설정되지 않았습니다.");
@@ -59,13 +54,11 @@ public class UserAuthReqDtoTest {
 
         @Test
         @DisplayName("@NotBlank Validation 테스트")
-        void testUsernameNotBlank() throws NoSuchFieldException, IllegalAccessException {
+        void testUsernameNotBlank() {
             // given
             String username = "";
 
-            Field field = UserAuthReqDto.class.getDeclaredField("username");
-            field.setAccessible(true);
-            field.set(userAuthReqDto, username);
+            ReflectionTestUtils.setField(userAuthReqDto, "username", username);
 
             // when
             List<ConstraintViolation<UserAuthReqDto>> validationList = validator.validate(userAuthReqDto).stream().collect(Collectors.toList());
@@ -77,13 +70,11 @@ public class UserAuthReqDtoTest {
 
         @Test
         @DisplayName("@Size Validation 테스트")
-        void testUsernameSize() throws NoSuchFieldException, IllegalAccessException {
+        void testUsernameSize() {
             // given
             String username = "TestUser1";
 
-            Field field = UserAuthReqDto.class.getDeclaredField("username");
-            field.setAccessible(true);
-            field.set(userAuthReqDto, username);
+            ReflectionTestUtils.setField(userAuthReqDto, "username", username);
 
             // when
             List<ConstraintViolation<UserAuthReqDto>> validationList = validator.validate(userAuthReqDto).stream().collect(Collectors.toList());
@@ -95,13 +86,11 @@ public class UserAuthReqDtoTest {
 
         @Test
         @DisplayName("@Pattern Validation 테스트")
-        void testUsernamePattern() throws NoSuchFieldException, IllegalAccessException {
+        void testUsernamePattern() {
             // given
             String username = "test!user";
 
-            Field field = UserAuthReqDto.class.getDeclaredField("username");
-            field.setAccessible(true);
-            field.set(userAuthReqDto, username);
+            ReflectionTestUtils.setField(userAuthReqDto, "username", username);
 
             // when
             List<ConstraintViolation<UserAuthReqDto>> validationList = validator.validate(userAuthReqDto).stream().collect(Collectors.toList());
@@ -119,13 +108,11 @@ public class UserAuthReqDtoTest {
 
         @Test
         @DisplayName("@NotBlank Validation 테스트")
-        void testPasswordNotBlank() throws NoSuchFieldException, IllegalAccessException {
+        void testPasswordNotBlank() {
             // given
             String password = "";
 
-            Field field = UserAuthReqDto.class.getDeclaredField("password");
-            field.setAccessible(true);
-            field.set(userAuthReqDto, password);
+            ReflectionTestUtils.setField(userAuthReqDto, "password", password);
 
             // when
             List<ConstraintViolation<UserAuthReqDto>> validationList = validator.validate(userAuthReqDto).stream().collect(Collectors.toList());
@@ -137,13 +124,11 @@ public class UserAuthReqDtoTest {
 
         @Test
         @DisplayName("@Size Validation 테스트")
-        void testPasswordSize() throws NoSuchFieldException, IllegalAccessException {
+        void testPasswordSize() {
             // given
             String password = "TestPw1!";
 
-            Field field = UserAuthReqDto.class.getDeclaredField("password");
-            field.setAccessible(true);
-            field.set(userAuthReqDto, password);
+            ReflectionTestUtils.setField(userAuthReqDto, "password", password);
 
             // when
             List<ConstraintViolation<UserAuthReqDto>> validationList = validator.validate(userAuthReqDto).stream().collect(Collectors.toList());
@@ -155,13 +140,11 @@ public class UserAuthReqDtoTest {
 
         @Test
         @DisplayName("@Pattern Validation 테스트")
-        void testPasswordPattern() throws NoSuchFieldException, IllegalAccessException {
+        void testPasswordPattern() {
             // given
             String password = "password123";
 
-            Field field = UserAuthReqDto.class.getDeclaredField("password");
-            field.setAccessible(true);
-            field.set(userAuthReqDto, password);
+            ReflectionTestUtils.setField(userAuthReqDto, "password", password);
 
             // when
             List<ConstraintViolation<UserAuthReqDto>> validationList = validator.validate(userAuthReqDto).stream().collect(Collectors.toList());

@@ -8,8 +8,8 @@ import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,14 +32,12 @@ public class CommentReqDtoTest {
     // 정상적인 유효한 CommentReqDto 생성 테스트
     @Test
     @DisplayName("유효한 CommentReqDto 생성 테스트")
-    void testValidContents() throws NoSuchFieldException, IllegalAccessException {
+    void testValidContents() {
         // given
         String contents = "Comment test";
 
         // when
-        Field field = CommentReqDto.class.getDeclaredField("contents");
-        field.setAccessible(true);
-        field.set(commentReqDto, contents);
+        ReflectionTestUtils.setField(commentReqDto, "contents", contents);
 
         // then
         assertEquals(contents, commentReqDto.getContents(), "Contents가 올바르게 설정되지 않았습니다.");
@@ -48,13 +46,11 @@ public class CommentReqDtoTest {
     // Contents 필드 유효성 테스트
     @Test
     @DisplayName("Contents 필드 @Notblank Validation 테스트")
-    void testContentsNotBlank() throws NoSuchFieldException, IllegalAccessException {
+    void testContentsNotBlank() {
         // given
         String contents = "";
 
-        Field field = CommentReqDto.class.getDeclaredField("contents");
-        field.setAccessible(true);
-        field.set(commentReqDto, contents);
+        ReflectionTestUtils.setField(commentReqDto, "contents", contents);
 
         // when
         List<ConstraintViolation<CommentReqDto>> validationList = validator.validate(commentReqDto).stream().collect(Collectors.toList());
