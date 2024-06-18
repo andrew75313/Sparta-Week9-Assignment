@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 
@@ -17,7 +18,6 @@ public class FeedTest {
 
     Feed feed;
     User user;
-    @Mock
     FeedReqDto feedReqDto;
 
     @BeforeEach
@@ -34,11 +34,19 @@ public class FeedTest {
                 Status.ACTIVATE,
                 LocalDateTime.now());
 
-        // 임의의 FeedReqDto Mock 객체
-        when(feedReqDto.getContents()).thenReturn("게시글 테스트입니다.");
+        // 임의의 FeedReqDto 객체
+        feedReqDto = setFeedReqDto("게시글 테스트입니다.");
 
         // 임의의 Feed 객체
         feed = new Feed(feedReqDto, user);
+    }
+
+    private FeedReqDto setFeedReqDto(String contents) {
+
+        FeedReqDto feedReqDto = new FeedReqDto();
+        ReflectionTestUtils.setField(feedReqDto,"contents", contents);
+
+        return feedReqDto;
     }
 
     // 생성자 테스트
@@ -57,10 +65,10 @@ public class FeedTest {
     void testUpdate() {
         // given
         String updateContents = "게시글 Update 테스트 입니다.";
-        when(feedReqDto.getContents()).thenReturn(updateContents);
+        FeedReqDto updateFeedReqDto = setFeedReqDto(updateContents);
 
         // when
-        feed.update(feedReqDto);
+        feed.update(updateFeedReqDto);
 
         // then
         assertEquals(updateContents, feed.getContents(), "게시글이 업데이트되지 않았습니다.");
