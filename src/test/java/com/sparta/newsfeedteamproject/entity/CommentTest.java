@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 
@@ -20,9 +21,8 @@ public class CommentTest {
     User user;
     Feed feed;
     Comment comment;
-    @Mock
+
     FeedReqDto feedReqDto;
-    @Mock
     CommentReqDto commentReqDto;
 
     @BeforeEach
@@ -39,14 +39,33 @@ public class CommentTest {
                 Status.ACTIVATE,
                 LocalDateTime.now());
 
+        // 임의의 FeedReqDto 객체
+        feedReqDto = setFeedReqDto("게시글 테스트입니다.");
+
         // 임의의 Feed 객체
         feed = new Feed(feedReqDto, user);
 
-        // 임의의 CommentReqDto Mock 객체
-        when(commentReqDto.getContents()).thenReturn("댓글 테스트입니다.");
+        // 임의의 CommentReqDto 객체
+        commentReqDto = setCommentReqDto("댓글 테스트입니다.");
 
         // 임의의 Comment 객체
         comment = new Comment(commentReqDto, feed, user, 0L);
+    }
+
+    private FeedReqDto setFeedReqDto(String contents) {
+
+        FeedReqDto feedReqDto = new FeedReqDto();
+        ReflectionTestUtils.setField(feedReqDto,"contents", contents);
+
+        return feedReqDto;
+    }
+
+    private CommentReqDto setCommentReqDto(String contents) {
+
+        CommentReqDto commentReqDto = new CommentReqDto();
+        ReflectionTestUtils.setField(commentReqDto,"contents", contents);
+
+        return commentReqDto;
     }
 
     // 생성자 테스트
@@ -65,13 +84,12 @@ public class CommentTest {
     void testUpdate() {
         // given
         String updateContents = "댓글 Update 테스트 입니다.";
-        when(feedReqDto.getContents()).thenReturn(updateContents);
 
         // when
-        feed.update(feedReqDto);
+        comment.update(updateContents);
 
         // then
-        assertEquals(updateContents, feed.getContents(), "댓글이 업데이트되지 않았습니다.");
+        assertEquals(updateContents, comment.getContents(), "댓글이 업데이트되지 않았습니다.");
     }
 
     // like 기능 테스트
